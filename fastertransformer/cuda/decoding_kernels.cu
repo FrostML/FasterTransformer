@@ -136,7 +136,94 @@ namespace fastertransformer
                                                                                   hidden_units);
   }
 
+  template <typename T>
+  __global__ void embeddings_kernels(T* from_tensor,
+                                     const T* embedding_table, 
+                                     const T* position_encoding,
+                                     const T* sent_table,
+                                     const int* word_ids,
+                                     const int sent_ids,
+                                     const int batch_size,
+                                     const int hidden_units)
+  {
+      // 1. lookup from embedding table
+      // 2. multiply hidden_dim**0.5
+      // 3. add the position encoding
+      // T scale = (T)sqrtf(float(hidden_units));
+      for(int index = blockIdx.x * blockDim.x + threadIdx.x; index < batch_size * hidden_units; index += blockDim.x * gridDim.x)
+      {
+        const int row_index = index / hidden_units; 
+        const int col_index = index % hidden_units; 
+        from_tensor[index] = embedding_table[word_ids[row_index] * hidden_units + col_index]
+                             + position_encoding[col_index]
+                             + sent_table[sent_ids * hidden_units + col_index];
+      }
+  }
 
+  template <typename T>
+  void embeddings_kernel_launcher(T *from_tensor,
+                                  const T *embedding_table,
+                                  const T *position_encoding_table,
+                                  const T *sent_table,
+                                  const int *word_ids,
+                                  const int sent_ids,
+                                  const int batch_size,
+                                  const int hidden_units,
+                                  cudaStream_t stream) {
+    dim3 grid(min(batch_size, 65536));
+    dim3 block(min(hidden_units, 1024));
+
+    embeddings_kernels<T><<<grid, block, 0, stream>>>(
+      from_tensor,
+      embedding_table,
+      position_encoding_table,
+      sent_table,
+      word_ids,
+      sent_ids,
+      batch_size,
+      hidden_units
+    );
+  }
+
+  template <typename T>
+  __global__ void initial_cache_kernel(const float* cache_k, const float* cache_v, 
+                                 const int* memory_sequence_length, T* k_tgt,
+                                 T* v_tgt, int n_head, int size_per_head,
+                                 int mem_len, int batch_size, int beam_size) {
+      int tid = threadIdx.x;
+      int bid = blockIdx.x / (beam_size * n_head);
+      int beam_id = blockIdx.x % (n_head * beam_size) / n_head;
+      int head_id = blockIdx.x % n_head;
+      
+      int offset = batch_size * beam_size * n_head * size_per_head;
+      
+      for (int ite = 0; ite < mem_len; ++ite) {
+          int tgt_id = bid * beam_size * n_head * size_per_head + beam_id * n_head * size_per_head +
+                      head_id * size_per_head + tid;
+          if (ite < mem_len - memory_sequence_length[bid]) {
+              k_tgt[ite * offset + tgt_id] = static_cast<T>(0.0);
+              v_tgt[ite * offset + tgt_id] = static_cast<T>(0.0);
+          } else {
+              // right padding to left padding
+              int src_ite = ite - mem_len + memory_sequence_length[bid];
+              int src_id = bid * mem_len * n_head * size_per_head + src_ite * n_head * size_per_head +
+                          head_id * size_per_head + tid;
+              k_tgt[ite * offset + tgt_id] = static_cast<T>(cache_k[src_id]);
+              v_tgt[ite * offset + tgt_id] = static_cast<T>(cache_v[src_id]);
+          }
+      }
+  }
+  
+  template <typename T>
+  void init_cache_kernel_launcher(const float* cache_k, const float* cache_v, 
+                  const int* memory_sequence_length, T* k_tgt,
+                  T* v_tgt, int n_head, int size_per_head,
+                  int mem_len, int batch_size, int beam_size, cudaStream_t stream) {
+      initial_cache_kernel<T><<<batch_size * beam_size * n_head, size_per_head, 0, stream>>>(
+          cache_k, cache_v, memory_sequence_length,
+          k_tgt, v_tgt,
+          n_head, size_per_head, mem_len, batch_size, beam_size);      
+  }
 
   template <typename T>
   __global__ void embedding_position_lookups_kernel(T* from_tensor,
@@ -760,6 +847,56 @@ namespace fastertransformer
                                                   const int hidden_units,
                                                   int step,
                                                   cudaStream_t stream);
+
+  template
+  void embeddings_kernel_launcher(float *from_tensor,
+                                  const float *embedding_table,
+                                  const float *position_encoding_table,
+                                  const float *sent_table,
+                                  const int *word_ids,
+                                  const int sent_ids,
+                                  const int batch_size,
+                                  const int hidden_units,
+                                  cudaStream_t stream);
+
+  template
+  void embeddings_kernel_launcher(half *from_tensor,
+                                  const half *embedding_table,
+                                  const half *position_encoding_table,
+                                  const half *sent_table,
+                                  const int *word_ids,
+                                  const int sent_ids,
+                                  const int batch_size,
+                                  const int hidden_units,
+                                  cudaStream_t stream);
+
+  template<>
+  void init_cache_kernel_launcher(
+      const float* cache_k,
+      const float* cache_v, 
+      const int* memory_sequence_length,
+      float* k_tgt,
+      float* v_tgt,
+      int n_head,
+      int size_per_head,
+      int mem_len,
+      int batch_size,
+      int beam_size,
+      cudaStream_t stream);
+
+  template<>
+  void init_cache_kernel_launcher(
+      const float* cache_k,
+      const float* cache_v, 
+      const int* memory_sequence_length,
+      half* k_tgt,
+      half* v_tgt,
+      int n_head,
+      int size_per_head,
+      int mem_len,
+      int batch_size,
+      int beam_size,
+      cudaStream_t stream);
 
   template void apply_temperature_penalty_kernelLauncher(float* logits,
                                                          const float temperature,

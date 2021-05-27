@@ -29,7 +29,7 @@ namespace fastertransformer
 {
 
 template <typename T>
-class DecoderInitParam
+class TransformerDecoderInitParam
 {
 public:
     /* weights for masked_multi_head_attention */
@@ -41,6 +41,10 @@ public:
 
     LayerNormWeight<T> ffn_layernorm;
     FFNWeight<T> ffn;
+
+    const float* k_cache = nullptr;
+    const float* v_cache = nullptr;
+
     cublasHandle_t cublas_handle;
     cudaStream_t stream;
 };
@@ -59,12 +63,12 @@ class DecoderTransformerTraits<OperationType::FP16> : public TransformerTraits<O
 };
 
 template <OperationType OpType_>
-class OpenDecoder
+class OpenTransformerDecoder
 {
 private:
     typedef DecoderTransformerTraits<OpType_> Traits_;
     typedef typename Traits_::DataType DataType_;
-    DecoderInitParam<DataType_> param_;
+    TransformerDecoderInitParam<DataType_> param_;
 
     const cudaDataType_t computeType_ = Traits_::computeType;
     const cudaDataType_t AType_ = Traits_::AType;
@@ -81,7 +85,7 @@ private:
     bool normalization_before_;
 
     DataType_ *norm_from_tensor_buf_, *query_buf_;
-    DataType_ *context_buf_, *masked_output_buf_;
+    DataType_ *context_buf_, *masked_output_buf_, *masked_output_tmp_buf_;
     DataType_ *norm_masked_output_buf_, *cross_output_buf_;
     DataType_ *norm_cross_output_buf_, *ffn_inner_buf_;
     DataType_ *key_buf_, *value_buf_;
@@ -93,7 +97,7 @@ private:
     bool is_fuse_QKV;
 
 public:
-    OpenDecoder(int batch_size, int seq_len,
+    OpenTransformerDecoder(int batch_size, int seq_len,
                 int head_num, int size_per_head,
                 int memory_hidden_units,
                 bool normalization_before=true) : batch_size_(batch_size),
@@ -175,7 +179,7 @@ public:
         return 13 * buf_size + sizeof(DataType_ *) * 9;
     }
 
-    void initialize(DecoderInitParam<DataType_> param, DataType_ *buf)
+    void initialize(TransformerDecoderInitParam<DataType_> param, DataType_ *buf)
     {
 #ifndef NDEBUG
         // PRINT_FUNC_NAME_();
@@ -189,6 +193,7 @@ public:
         context_buf_ = buf + 4 * buf_size; //store the context result (softmax(qk)v) in both masked and multi-head attention
 
         masked_output_buf_ = buf + 5 * buf_size;      //masked_attention_output
+        masked_output_tmp_buf_ = buf + 5 * buf_size;      //masked_attention_output
         norm_masked_output_buf_ = buf + 6 * buf_size; //norm(masked_attention_output)
 
         cross_output_buf_ = buf + 7 * buf_size;         //mutli-head attention_output
@@ -214,7 +219,7 @@ public:
                  DataType_ *key_cache_, DataType_ *value_cache_,
                  DataType_ *key_mem_cache_, DataType_ *value_mem_cache_,
                  const int *memory_sequence_length, DataType_ *decoder_output, const int step,
-                 const bool is_cross_attention)
+                 const int start_len, const bool is_cross_attention)
     {
 #ifndef NDEBUG
         // PRINT_FUNC_NAME_();
@@ -237,108 +242,58 @@ public:
             cudaDeviceSynchronize();
             check_cuda_error(cudaGetLastError());
 #endif
-            masked_multi_head_attention(norm_from_tensor_buf_, key_cache_, value_cache_, masked_output_buf_, step);
+            masked_multi_head_attention(
+                norm_from_tensor_buf_,
+                memory_sequence_length,
+                key_cache_,
+                value_cache_,
+                masked_output_buf_,
+                step,
+                start_len);
 
 #ifndef NDEBUG
             cudaDeviceSynchronize();
             check_cuda_error(cudaGetLastError());
 #endif
 
-            if (is_cross_attention == true)
-            {
-                /* 
-                    add bias to masked_output_buf_
-                    masked_output_buf_ + from_tensor -> masked_output_buf_
-                    norm(masked_output_buf_) -> norm_masked_output_buf_ 
-                */
-                decoder_norm2(from_tensor,
-                              param_.cross_layernorm.gamma,
-                              param_.cross_layernorm.beta,
-                              param_.self_attention.attention_output_weight.bias,
-                              masked_output_buf_,
-                              norm_masked_output_buf_, m, n);
-#ifndef NDEBUG
-                cudaDeviceSynchronize();
-                check_cuda_error(cudaGetLastError());
-#endif
-
-                if (!normalization_before_) {
-                    masked_output_buf_ = norm_masked_output_buf_;
-                }
-
-                // For Attention is All You Need decoder
-                /* cross attention with memory */
-                cross_multi_head_attention(norm_masked_output_buf_, memory_tensor,
-                                           key_mem_cache_, value_mem_cache_, cross_output_buf_,
-                                           memory_sequence_length, max_seq_len_, step);
-#ifndef NDEBUG
-                cudaDeviceSynchronize();
-                check_cuda_error(cudaGetLastError());
-#endif
-                /* 
-                    cross_output_buf_ + bias + masked_output_buf_ -> cross_output_buf_
-                    norm(cross_otuput_buf) -> normed_last_context (input for ffn)
-                */
-                decoder_norm2(masked_output_buf_,
-                              param_.ffn_layernorm.gamma,
-                              param_.ffn_layernorm.beta,
-                              param_.cross_attention.attention_output_weight.bias,
-                              cross_output_buf_,
-                              norm_cross_output_buf_, m, n);
-#ifndef NDEBUG
-                cudaDeviceSynchronize();
-                check_cuda_error(cudaGetLastError());
-#endif
-
-                if (!normalization_before_) {
-                    cross_output_buf_ = norm_cross_output_buf_;
-                }
-
-                ffn(norm_cross_output_buf_, ffn_inner_buf_, decoder_output, m, 4 * n, n, ActivationType::RELU);
-#ifndef NDEBUG
-                cudaDeviceSynchronize();
-                check_cuda_error(cudaGetLastError());
-#endif
-                add_bias_input(decoder_output, cross_output_buf_, m, n);
-            }
-            else
-            {
-                decoder_norm2(from_tensor,
-                              param_.ffn_layernorm.gamma,
-                              param_.ffn_layernorm.beta,
-                              param_.self_attention.attention_output_weight.bias,
-                              masked_output_buf_,
-                              norm_masked_output_buf_, m, n);
-#ifndef NDEBUG
-                cudaDeviceSynchronize();
-                check_cuda_error(cudaGetLastError());
-#endif
-
-                if (!normalization_before_) {
-                    masked_output_buf_ = norm_masked_output_buf_;
-                }
-
-                // For GPT-2 decoder
-                ffn(norm_masked_output_buf_, ffn_inner_buf_, decoder_output, m, 4 * n, n, ActivationType::GELU);
-#ifndef NDEBUG
-                cudaDeviceSynchronize();
-                check_cuda_error(cudaGetLastError());
-#endif
-                add_bias_input(decoder_output, masked_output_buf_, m, n);
-            }
+            decoder_norm2(from_tensor,
+                            param_.ffn_layernorm.gamma,
+                            param_.ffn_layernorm.beta,
+                            param_.self_attention.attention_output_weight.bias,
+                            masked_output_buf_,
+                            norm_masked_output_buf_, m, n);
 #ifndef NDEBUG
             cudaDeviceSynchronize();
             check_cuda_error(cudaGetLastError());
 #endif
+            if (!normalization_before_) {
+                masked_output_buf_ = norm_masked_output_buf_;
+            }
+
+            // For GPT-2 decoder
+            ffn(norm_masked_output_buf_, ffn_inner_buf_, decoder_output, m, 4 * n, n, ActivationType::GELU);
+#ifndef NDEBUG
+            cudaDeviceSynchronize();
+            check_cuda_error(cudaGetLastError());
+#endif
+            add_bias_input(decoder_output, masked_output_buf_, m, n);
+
+            if (!normalization_before_) {
+                masked_output_buf_ = masked_output_tmp_buf_;
+            }
         }
+#ifndef NDEBUG
+        cudaDeviceSynchronize();
+        check_cuda_error(cudaGetLastError());
+#endif
 
         catch (std::runtime_error &error)
         {
             throw error;
         }
     }
-    void masked_multi_head_attention(const DataType_ *from_tensor, DataType_ *key_cache_,
-                                     DataType_ *value_cache_, DataType_ *decoder_output, const int step);
+    void masked_multi_head_attention(const DataType_ *from_tensor, const int* memory_sequence_length, DataType_ *key_cache_,
+                                     DataType_ *value_cache_, DataType_ *decoder_output, const int step, const int start_len);
 
     void cross_multi_head_attention(const DataType_ *from_tensor, const DataType_ *memory_tensor,
                                     DataType_ *key_mem_cache_, DataType_ *value_mem_cache_,
@@ -358,7 +313,7 @@ public:
 
     void add_bias_input(DataType_ *output, const DataType_ *input, const int m, const int n);
 
-    ~OpenDecoder()
+    ~OpenTransformerDecoder()
     {
         norm_from_tensor_buf_ = nullptr;
         query_buf_ = nullptr;
@@ -367,6 +322,7 @@ public:
         context_buf_ = nullptr;
 
         masked_output_buf_ = nullptr;
+        masked_output_tmp_buf_ = nullptr;
         norm_masked_output_buf_ = nullptr;
 
         cross_output_buf_ = nullptr;

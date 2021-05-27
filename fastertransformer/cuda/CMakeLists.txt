@@ -18,7 +18,7 @@ set(encoder_kernel_files
 )
 
 set(decoder_kernel_files
-  open_decoder.cu
+  open_decoder.cu transformer_decoder.cu
 )
 
 set(online_softmax_beamsearch_kernel_files

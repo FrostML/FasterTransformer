@@ -52,6 +52,31 @@ void embedding_lookup_sine_position_encoding_kernel_launcher(T *from_tensor,
                                                              cudaStream_t stream);
 
 template <typename T>
+void embeddings_kernel_launcher(T *from_tensor,
+                                const T *embedding_table,
+                                const T *position_encoding_table,
+                                const T *sent_table,
+                                const int *word_ids,
+                                const int sent_ids,
+                                const int batch_size,
+                                const int hidden_units,
+                                cudaStream_t stream);
+
+template <typename T>
+void init_cache_kernel_launcher(
+    const float *const cache_k,
+    const float *const cache_v,
+    const int* memory_sequence_length,
+    T* k_tgt,
+    T* v_tgt,
+    int n_head,
+    int size_per_head,
+    int mem_len,
+    int batch_size,
+    int beam_size,
+    cudaStream_t stream);
+
+template <typename T>
 void remove_sequence_length_padding_kernelLauncher(const T *src, T *tgt,
                                                    const int *tmp_mask_offset,
                                                    int *mask_offset, const int m,

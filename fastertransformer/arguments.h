@@ -42,10 +42,17 @@ public:
   const T *embedding_bias_T = nullptr;
   const float *embedding_bias = nullptr;
 
+  // Used for unilm
+  const T *trans_kernel = nullptr;
+  const T *trans_bias = nullptr;
+
   const T *memory_tensor = nullptr;
   const int *memory_sequence_length = nullptr;
 
   const T *position_encoding_table = nullptr;
+
+  // segment table
+  const T *sent_table = nullptr;
 
   LayerNormWeight<T> layernorm;
 
@@ -96,6 +103,18 @@ struct Gpt2Arguments : public DecodingSamplingArguments
   float len_penalty{1.0};
   float repeat_penalty{2.0};
   int *vocab_mask{nullptr};
+};
+
+struct TransformerGenArguments : public DecodingSamplingArguments
+{
+  int **start_ids_;
+  int start_len_;
+  float temperature_{2.0};
+  float len_penalty{1.0};
+  float repeat_penalty{2.0};
+  int *vocab_mask{nullptr};
+  int sent_ids_{0};
+  bool normalization_before_{true};
 };
 
 } // namespace fastertransformer
