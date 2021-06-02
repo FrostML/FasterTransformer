@@ -282,15 +282,15 @@ public:
                 masked_output_buf_ = masked_output_tmp_buf_;
             }
         }
-#ifndef NDEBUG
-        cudaDeviceSynchronize();
-        check_cuda_error(cudaGetLastError());
-#endif
 
         catch (std::runtime_error &error)
         {
             throw error;
         }
+#ifndef NDEBUG
+        cudaDeviceSynchronize();
+        check_cuda_error(cudaGetLastError());
+#endif
     }
     void masked_multi_head_attention(const DataType_ *from_tensor, const int* memory_sequence_length, DataType_ *key_cache_,
                                      DataType_ *value_cache_, DataType_ *decoder_output, const int step, const int start_len);
