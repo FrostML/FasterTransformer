@@ -21,10 +21,6 @@ set(decoder_kernel_files
   open_decoder.cu
 )
 
-set(transformer_decoder_kernel_files
-  transformer_decoder.cu
-)
-
 set(online_softmax_beamsearch_kernel_files
   online_softmax_beamsearch_kernels.cu
 )
@@ -56,11 +52,6 @@ add_library(decoder STATIC ${decoder_kernel_files})
 set_property(TARGET decoder PROPERTY POSITION_INDEPENDENT_CODE  ON)
 set_property(TARGET decoder PROPERTY CUDA_RESOLVE_DEVICE_SYMBOLS  ON)
 target_link_libraries(decoder PUBLIC -lcublas -lcudart -lcurand)
-
-add_library(transformer_decoder STATIC ${transformer_decoder_kernel_files})
-set_property(TARGET transformer_decoder PROPERTY POSITION_INDEPENDENT_CODE  ON)
-set_property(TARGET transformer_decoder PROPERTY CUDA_RESOLVE_DEVICE_SYMBOLS  ON)
-target_link_libraries(transformer_decoder PUBLIC -lcublas -lcudart -lcurand)
 
 add_library(online_softmax_beamsearch STATIC ${online_softmax_beamsearch_kernel_files})
 set_property(TARGET online_softmax_beamsearch PROPERTY POSITION_INDEPENDENT_CODE  ON)
