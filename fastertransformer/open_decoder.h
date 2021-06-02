@@ -21,6 +21,7 @@
 #include "fastertransformer/allocator.h"
 #include "fastertransformer/common.h"
 #include "fastertransformer/common_structure.h"
+#include "fastertransformer/open_decoder.h"
 #include <assert.h>
 #include <cuda_runtime.h>
 #include <cuda_fp16.h>
