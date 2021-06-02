@@ -64,8 +64,8 @@ void embeddings_kernel_launcher(T *from_tensor,
 
 template <typename T>
 void init_cache_kernel_launcher(
-    const float * cache_k,
-    const float * cache_v,
+    const float* cache_k,
+    const float* cache_v,
     const int* memory_sequence_length,
     T* k_tgt,
     T* v_tgt,

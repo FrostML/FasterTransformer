@@ -859,8 +859,7 @@ namespace fastertransformer
                                   const int hidden_units,
                                   cudaStream_t stream);
 
-  template
-  void embeddings_kernel_launcher(half *from_tensor,
+  template void embeddings_kernel_launcher(half *from_tensor,
                                   const half *embedding_table,
                                   const half *position_encoding_table,
                                   const half *sent_table,
@@ -870,8 +869,7 @@ namespace fastertransformer
                                   const int hidden_units,
                                   cudaStream_t stream);
 
-  template<>
-  void init_cache_kernel_launcher(
+  template void init_cache_kernel_launcher(
       const float* cache_k,
       const float* cache_v, 
       const int* memory_sequence_length,
@@ -884,8 +882,7 @@ namespace fastertransformer
       int beam_size,
       cudaStream_t stream);
 
-  template<>
-  void init_cache_kernel_launcher(
+  template void init_cache_kernel_launcher(
       const float* cache_k,
       const float* cache_v, 
       const int* memory_sequence_length,
