@@ -2243,25 +2243,25 @@ void masked_attention_dispatch(
    const int step,
    const int start_len);
  
- template void OpenTransformerDecoder<OperationType::FP32>::cross_multi_head_attention(
-   const float* from_tensor,
-   const float* memory_tensor,
-   float* key_mem_cache,
-   float* value_mem_cache,
-   float* decoder_output,
-   const int* length,
-   const int max_seq_len,
-   const int step);
+//  template void OpenTransformerDecoder<OperationType::FP32>::cross_multi_head_attention(
+//    const float* from_tensor,
+//    const float* memory_tensor,
+//    float* key_mem_cache,
+//    float* value_mem_cache,
+//    float* decoder_output,
+//    const int* length,
+//    const int max_seq_len,
+//    const int step);
  
- template void OpenTransformerDecoder<OperationType::FP16>::cross_multi_head_attention(
-   const half* from_tensor,
-   const half* memory_tensor,
-   half* key_mem_cache,
-   half* value_mem_cache,
-   half* decoder_output,
-   const int* length,
-   const int max_seq_len,
-   const int step);
+//  template void OpenTransformerDecoder<OperationType::FP16>::cross_multi_head_attention(
+//    const half* from_tensor,
+//    const half* memory_tensor,
+//    half* key_mem_cache,
+//    half* value_mem_cache,
+//    half* decoder_output,
+//    const int* length,
+//    const int max_seq_len,
+//    const int step);
  
  template void OpenTransformerDecoder<OperationType::FP32>::ffn(
    const float* input,
