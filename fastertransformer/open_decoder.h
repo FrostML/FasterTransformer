@@ -78,7 +78,6 @@ private:
     int size_per_head_;
     int hidden_units_;
     int memory_hidden_units_;
-    bool normalization_before_;
 
     DataType_ *norm_from_tensor_buf_, *query_buf_;
     DataType_ *context_buf_, *masked_output_buf_;
@@ -95,12 +94,10 @@ private:
 public:
     OpenDecoder(int batch_size, int seq_len,
                 int head_num, int size_per_head,
-                int memory_hidden_units,
-                bool normalization_before=true) : batch_size_(batch_size),
+                int memory_hidden_units) : batch_size_(batch_size),
                                            max_seq_len_(seq_len), head_num_(head_num),
                                            size_per_head_(size_per_head),
-                                           memory_hidden_units_(memory_hidden_units),
-                                           normalization_before_(normalization_before)
+                                           memory_hidden_units_(memory_hidden_units)
     {
 #ifndef NDEBUG
         PRINT_FUNC_NAME_();
@@ -261,11 +258,6 @@ public:
                 cudaDeviceSynchronize();
                 check_cuda_error(cudaGetLastError());
 #endif
-
-                if (!normalization_before_) {
-                    masked_output_buf_ = norm_masked_output_buf_;
-                }
-
                 // For Attention is All You Need decoder
                 /* cross attention with memory */
                 cross_multi_head_attention(norm_masked_output_buf_, memory_tensor,
@@ -289,11 +281,6 @@ public:
                 cudaDeviceSynchronize();
                 check_cuda_error(cudaGetLastError());
 #endif
-
-                if (!normalization_before_) {
-                    cross_output_buf_ = norm_cross_output_buf_;
-                }
-
                 ffn(norm_cross_output_buf_, ffn_inner_buf_, decoder_output, m, 4 * n, n, ActivationType::RELU);
 #ifndef NDEBUG
                 cudaDeviceSynchronize();
@@ -313,11 +300,6 @@ public:
                 cudaDeviceSynchronize();
                 check_cuda_error(cudaGetLastError());
 #endif
-
-                if (!normalization_before_) {
-                    masked_output_buf_ = norm_masked_output_buf_;
-                }
-
                 // For GPT-2 decoder
                 ffn(norm_masked_output_buf_, ffn_inner_buf_, decoder_output, m, 4 * n, n, ActivationType::GELU);
 #ifndef NDEBUG
