@@ -1844,7 +1844,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
 
   template <typename T>
   __global__ 
-  void masked_attention_kernel(
+  void self_attention_kernel(
     const int* memory_sequence_length,
     T* key_buf, T* value_buf,
     T* query_buf, const T* self_Q_bias, 
@@ -1885,6 +1885,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
       __syncthreads(); //try to remove
     }
     __syncthreads(); //try to remove
+    return;
   
     __shared__ float s_max_val, s_sum;
     float local_i = (tid >= (start_len - memory_sequence_length[bid])) && (tid < step) ? (float)logits[tid] : -1e20f; 
@@ -1999,7 +2000,7 @@ void masked_attention_dispatch(
 
         
         int shared_size = sizeof(T) * (size_per_head + step);
-        masked_attention_kernel<T><<<grid, block, shared_size, stream>>>(
+        self_attention_kernel<T><<<grid, block, shared_size, stream>>>(
           memory_sequence_length,
           key_buf, value_buf,
           query_buf, self_Q_bias, 
@@ -2007,6 +2008,8 @@ void masked_attention_dispatch(
           value_cache, self_V_bias,
           context_buf, batch_size,
           head_num, size_per_head, step + start_len, start_len, scalar);
+
+        exiit(0);
     }
   }
 
