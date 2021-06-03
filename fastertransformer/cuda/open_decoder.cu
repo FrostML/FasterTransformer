@@ -1904,12 +1904,12 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
     if((tid >= (start_len - memory_sequence_length[bid])) && (tid < step))
       logits[tid] = local_o / s_sum;
     __syncthreads();
-    return;
+    // return;
   
     if(tid < size_per_head)
     {
       T sum = (T)0.0f;
-      for(int ite = (start_len - memory_sequence_length[bid]); ite < step; ++ite)
+      for(int ite = 0; ite < step; ++ite)
       {
         T value = value_cache[ite * offset + qkv_id];
         //for the last step, we should update K + bias_K to the cache
