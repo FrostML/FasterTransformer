@@ -2009,7 +2009,7 @@ void masked_attention_dispatch(
           context_buf, batch_size,
           head_num, size_per_head, step + start_len, start_len, scalar);
 
-        exiit(0);
+        exit(0);
     }
   }
 
