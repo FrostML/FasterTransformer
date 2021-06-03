@@ -252,10 +252,6 @@ public:
     }
 
 #ifndef NDEBUG
-    cudaDeviceSynchronize();
-    check_cuda_error(cudaGetLastError());
-#endif
-#ifndef NDEBUG
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
 #endif
@@ -337,12 +333,18 @@ public:
                                     trans_out_buf_, CType_, n,
                                     computeType_,
                                     static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
-
+#ifndef NDEBUG
+    cudaDeviceSynchronize();
+    check_cuda_error(cudaGetLastError());
+#endif
       // add bias decoding_params.trans_bias
 
       decoder_->decoder_norm1(trans_out_buf_, decoding_params.layernorm.gamma,
                               decoding_params.layernorm.beta, decoder_normed_result_buf_, m, k);
-
+#ifndef NDEBUG
+    cudaDeviceSynchronize();
+    check_cuda_error(cudaGetLastError());
+#endif
       check_cuda_error(cublasGemmEx(decoding_params.cublas_handle,
                                     CUBLAS_OP_N, CUBLAS_OP_N,
                                     n, m, k,
