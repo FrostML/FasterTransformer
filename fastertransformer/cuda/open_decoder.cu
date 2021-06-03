@@ -1892,7 +1892,6 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
     if(tid == 0)
       s_max_val = max_val;
     __syncthreads();
-    return;
   
     local_i -= s_max_val;
     float local_o = (tid >= (start_len - memory_sequence_length[bid])) && (tid < step) ? __expf(local_i) : 0.0f;
@@ -1905,6 +1904,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
     if((tid >= (start_len - memory_sequence_length[bid])) && (tid < step))
       logits[tid] = local_o / s_sum;
     __syncthreads();
+    return;
   
     if(tid < size_per_head)
     {
