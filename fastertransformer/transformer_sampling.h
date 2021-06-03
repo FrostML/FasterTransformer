@@ -255,7 +255,10 @@ public:
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
 #endif
-
+#ifndef NDEBUG
+        cudaDeviceSynchronize();
+        check_cuda_error(cudaGetLastError());
+#endif
     int cache_size = args_.batch_size_ * (args_.seq_len_ + args_.start_len_) * args_.hidden_units_; // type T
 
     for (int sub_layer = 0; sub_layer < args_.decoder_layers_; ++sub_layer) {
@@ -280,7 +283,10 @@ public:
                                 args_.batch_size_,
                                 args_.hidden_units_,
                                 decoding_params.stream);
-
+#ifndef NDEBUG
+        cudaDeviceSynchronize();
+        check_cuda_error(cudaGetLastError());
+#endif
       int from_id, out_id;
       for (int layer = 0; layer < args_.decoder_layers_; ++layer)
       {
