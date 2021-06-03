@@ -262,12 +262,13 @@ public:
                 decoding_params.memory_sequence_length, K_cache_[0] + sub_layer * cache_size,
                 V_cache_[0] + sub_layer * cache_size, args_.head_num_, args_.size_per_head_,
                 args_.start_len_, args_.batch_size_, 1, decoding_params.stream);
-exit(0);
+// exit(0);
 #ifndef NDEBUG
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
 #endif
     }
+    exit(0);
 
     for (int step = 1; step <= args_.seq_len_; ++step) {
       embeddings_kernel_launcher(from_tensor_[0],
