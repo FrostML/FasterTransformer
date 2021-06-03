@@ -203,14 +203,16 @@ namespace fastertransformer
           if (ite < mem_len - memory_sequence_length[bid]) {
               k_tgt[ite * offset + tgt_id] = static_cast<T>(0.0);
               v_tgt[ite * offset + tgt_id] = static_cast<T>(0.0);
-          } /*else {
+          } else {
               // right padding to left padding
               int src_ite = ite - mem_len + memory_sequence_length[bid];
               int src_id = bid * mem_len * n_head * size_per_head + src_ite * n_head * size_per_head +
                           head_id * size_per_head + tid;
-              k_tgt[ite * offset + tgt_id] = static_cast<T>(cache_k[src_id]);
-              v_tgt[ite * offset + tgt_id] = static_cast<T>(cache_v[src_id]);
-          }*/
+              // k_tgt[ite * offset + tgt_id] = static_cast<T>(cache_k[src_id]);
+              // v_tgt[ite * offset + tgt_id] = static_cast<T>(cache_v[src_id]);
+              static_cast<T>(cache_k[src_id]);
+              static_cast<T>(cache_v[src_id]);
+          }
       }
   }
   
