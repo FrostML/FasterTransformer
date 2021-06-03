@@ -262,12 +262,11 @@ public:
                 decoding_params.memory_sequence_length, K_cache_[0] + sub_layer * cache_size,
                 V_cache_[0] + sub_layer * cache_size, args_.head_num_, args_.size_per_head_,
                 args_.start_len_, args_.batch_size_, 1, decoding_params.stream);
-    }
-
 #ifndef NDEBUG
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
 #endif
+    }
 
     for (int step = 1; step <= args_.seq_len_; ++step) {
       embeddings_kernel_launcher(from_tensor_[0],
@@ -338,6 +337,12 @@ public:
     check_cuda_error(cudaGetLastError());
 #endif
       // add bias decoding_params.trans_bias
+      decoder_->add_bias_act(trans_out_buf_, decoding_params.trans_bias, m, k);
+
+#ifndef NDEBUG
+    cudaDeviceSynchronize();
+    check_cuda_error(cudaGetLastError());
+#endif
 
       decoder_->decoder_norm1(trans_out_buf_, decoding_params.layernorm.gamma,
                               decoding_params.layernorm.beta, decoder_normed_result_buf_, m, k);

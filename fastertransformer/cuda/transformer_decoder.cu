@@ -1602,6 +1602,20 @@
      norm_output_ptr[id] = __float22half2_rn(local_out_fp2);
    }
  }
+
+ template<OperationType OpType_>
+ void OpenTransformerDecoder<OpType_>::add_bias_act(DataType_* input,
+                                                    const DataType_* bias,
+                                                    int m, int n, ActivationType activation_type=ActivationType::GELU) {
+
+  dim3 block_(min((int)(n / 4 / (4 / sizeof(DataType_))), 1024));
+  dim3 grid_(min(m * n / block.x, 65536)); 
+  
+  if(activation_type == ActivationType::RELU)
+    add_bias_relu<DataType_><<<grid_, block_, 0, param_.stream>>>(input, bias, m, n / (4 / sizeof(DataType_)));
+  else if(activation_type == ActivationType::GELU)
+    add_bias_gelu<DataType_><<<grid_, block_, 0, param_.stream>>>(input, bias, m, n / (4 / sizeof(DataType_)));                                         
+ }
  
  template<OperationType OpType_>
  void OpenTransformerDecoder<OpType_>::decoder_norm1(
@@ -1820,7 +1834,15 @@
    const half* beta,
    half* output,
    int m, int n);
- 
+
+ template void OpenTransformerDecoder<OpType_>::add_bias_act(DataType_* input,
+const float* bias,
+int m, int n);
+
+ template void OpenTransformerDecoder<OpType_>::add_bias_act(DataType_* input,
+  const half* bias,
+  int m, int n);
+
  template void OpenTransformerDecoder<OperationType::FP32>::decoder_norm2(
    const float* input,
    const float* gamma,
