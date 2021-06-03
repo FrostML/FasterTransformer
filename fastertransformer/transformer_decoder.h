@@ -249,7 +249,7 @@ public:
                 key_cache_,
                 value_cache_,
                 masked_output_buf_,
-                step,
+                step + start_len,
                 start_len);
 
 #ifndef NDEBUG
