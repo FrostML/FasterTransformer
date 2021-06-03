@@ -256,10 +256,12 @@ public:
         check_cuda_error(cudaGetLastError());
 #endif
     int cache_size = args_.batch_size_ * (args_.seq_len_ + args_.start_len_) * args_.hidden_units_; // type T
-    std::cout << "batch_size: " << args_.batch_size_ << std::endl;
-    std::cout << "seq_len_: " << args_.seq_len_ << std::endl;
-    std::cout << "start_len_: " << args_.start_len_ << std::endl;
-    std::cout << "hidden_units_: " << args_.hidden_units_ << std::endl;
+    // std::cout << "batch_size: " << args_.batch_size_ << std::endl;
+    // std::cout << "seq_len_: " << args_.seq_len_ << std::endl;
+    // std::cout << "start_len_: " << args_.start_len_ << std::endl;
+    // std::cout << "hidden_units_: " << args_.hidden_units_ << std::endl;
+    // std::cout << "head_num_: " << args_.head_num_ << std::endl;
+    // std::cout << "hidden_units_: " << args_.hidden_units_ << std::endl;
 
     for (int sub_layer = 0; sub_layer < args_.decoder_layers_; ++sub_layer) {
       std::cout << sub_layer << std::endl;
@@ -267,13 +269,11 @@ public:
                 decoding_params.memory_sequence_length, K_cache_[0] + sub_layer * cache_size,
                 V_cache_[0] + sub_layer * cache_size, args_.head_num_, args_.size_per_head_,
                 args_.start_len_, args_.batch_size_, 1, decoding_params.stream);
-// exit(0);
+    }
 #ifndef NDEBUG
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
 #endif
-    }
-    exit(0);
 
     for (int step = 1; step <= args_.seq_len_; ++step) {
       embeddings_kernel_launcher(from_tensor_[0],
