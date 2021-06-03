@@ -210,12 +210,12 @@ namespace fastertransformer
         //             head_id * size_per_head + tid;
         int src_id = bid * n_head * mem_len * size_per_head + head_id * mem_len * size_per_head +
                     src_ite * size_per_head + tid;
-        // k_tgt[ite * offset + tgt_id] = (cache_k[src_id]);
-        // v_tgt[ite * offset + tgt_id] = (cache_v[src_id]);
-        k_tgt[ite * offset + tgt_id] = static_cast<T>(0.0);
-        v_tgt[ite * offset + tgt_id] = static_cast<T>(0.0);
-        auto a = static_cast<T>(cache_k[src_id]);
-        auto b = static_cast<T>(cache_v[src_id]);
+        k_tgt[ite * offset + tgt_id] = static_cast<T>(cache_k[src_id]);
+        v_tgt[ite * offset + tgt_id] = static_cast<T>(cache_v[src_id]);
+        // k_tgt[ite * offset + tgt_id] = static_cast<T>(0.0);
+        // v_tgt[ite * offset + tgt_id] = static_cast<T>(0.0);
+        // auto a = static_cast<T>(cache_k[src_id]);
+        // auto b = static_cast<T>(cache_v[src_id]);
       }
     }
   }

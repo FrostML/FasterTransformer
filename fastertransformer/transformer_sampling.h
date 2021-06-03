@@ -258,6 +258,7 @@ public:
     int cache_size = args_.batch_size_ * (args_.seq_len_ + args_.start_len_) * args_.hidden_units_; // type T
 
     for (int sub_layer = 0; sub_layer < args_.decoder_layers_; ++sub_layer) {
+      std::cout << sub_layer << std::endl;
       init_cache_kernel_launcher(param[sub_layer].k_cache, param[sub_layer].v_cache, 
                 decoding_params.memory_sequence_length, K_cache_[0] + sub_layer * cache_size,
                 V_cache_[0] + sub_layer * cache_size, args_.head_num_, args_.size_per_head_,
