@@ -322,6 +322,8 @@ public:
       DataType_ alpha = (DataType_)1.0f;
       DataType_ beta = (DataType_)0.0f;
       // trans here
+        cudaDeviceSynchronize();
+        check_cuda_error(cudaGetLastError());
       check_cuda_error(cublasGemmEx(decoding_params.cublas_handle,
                                     CUBLAS_OP_N, CUBLAS_OP_N,
                                     n, m, k,
@@ -332,6 +334,8 @@ public:
                                     trans_out_buf_, CType_, n,
                                     computeType_,
                                     static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
+        cudaDeviceSynchronize();
+        check_cuda_error(cudaGetLastError());
 #ifndef NDEBUG
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
