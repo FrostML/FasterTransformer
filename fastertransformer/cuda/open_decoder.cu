@@ -2046,10 +2046,10 @@ void masked_attention_dispatch(
     {
       key_buf_ = key_cache_ + (step - 1) * m * n;
       value_buf_ = value_cache_ + (step - 1) * m * n;
-      #ifndef NDEBUG
+#ifndef NDEBUG
       cudaDeviceSynchronize();
       check_cuda_error(cudaGetLastError());
-  #endif
+#endif
       check_cuda_error(cublasGemmEx(param_.cublas_handle, 
         CUBLAS_OP_N, CUBLAS_OP_N, 
         n, m, k, 
@@ -2060,10 +2060,10 @@ void masked_attention_dispatch(
         query_buf_, CType_, n, 
         computeType_, 
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
-        #ifndef NDEBUG
+#ifndef NDEBUG
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
-    #endif
+#endif
       check_cuda_error(cublasGemmEx(param_.cublas_handle, 
         CUBLAS_OP_N, CUBLAS_OP_N, 
         n, m, k, 
@@ -2074,10 +2074,10 @@ void masked_attention_dispatch(
         key_buf_, CType_, n, 
         computeType_, 
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
-        #ifndef NDEBUG
+#ifndef NDEBUG
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
-    #endif
+#endif
       check_cuda_error(cublasGemmEx(param_.cublas_handle, 
         CUBLAS_OP_N, CUBLAS_OP_N, 
         n, m, k, 
@@ -2089,7 +2089,7 @@ void masked_attention_dispatch(
         computeType_, 
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
     }
-    #ifndef NDEBUG
+#ifndef NDEBUG
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
 #endif
@@ -2101,10 +2101,13 @@ void masked_attention_dispatch(
       value_cache_, param_.self_attention.value_weight.bias,
       context_buf_, batch_size_,
       head_num_, size_per_head_, step, start_len, param_.stream); 
-      #ifndef NDEBUG
+#ifndef NDEBUG
       cudaDeviceSynchronize();
       check_cuda_error(cudaGetLastError());
-  #endif
+#endif
+    std::cout << "n: " << n << std::endl;
+    std::cout << "m: " << n << std::endl;
+    std::cout << "k: " << n << std::endl;
     check_cuda_error(cublasGemmEx(param_.cublas_handle, 
       CUBLAS_OP_N, CUBLAS_OP_N, 
       n, m, k, 
