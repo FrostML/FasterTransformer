@@ -2118,7 +2118,11 @@ void masked_attention_dispatch(
       decoder_output, CType_, n, 
       computeType_, 
       static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
-  } 
+#ifndef NDEBUG
+      cudaDeviceSynchronize();
+      check_cuda_error(cudaGetLastError());
+#endif
+  }
   
 
   template<OperationType OpType_>
