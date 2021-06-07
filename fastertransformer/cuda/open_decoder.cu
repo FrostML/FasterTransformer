@@ -2003,9 +2003,6 @@ void masked_attention_dispatch_(
 
         
         int shared_size = sizeof(T) * (size_per_head + step);
-        std::cout << "(size_per_head + step): " << (size_per_head + step) << std::endl;
-        std::cout << "(size_per_head): " << (size_per_head) << std::endl;
-        std::cout << "(step): " << (step) << std::endl;
         self_attention_kernel<T><<<grid, block, shared_size, stream>>>(
           memory_sequence_length,
           key_buf, value_buf,
