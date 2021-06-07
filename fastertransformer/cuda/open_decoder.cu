@@ -2230,7 +2230,9 @@ void masked_attention_dispatch_(
   template<OperationType OpType_>
   void OpenTransformerDecoder<OpType_>::add_bias_act(DataType_* input,
                                                      const DataType_* bias,
-                                                     int m, int n, cudaStream_t stream, ActivationType activation_type=ActivationType::GELU) {
+                                                     int m, int n,
+                                                     cudaStream_t stream,
+                                                     ActivationType activation_type=ActivationType::GELU) {
  
    dim3 block_(min((int)(n / 4 / (4 / sizeof(DataType_))), 1024));
    dim3 grid_(min(m * n / block_.x, 65536)); 

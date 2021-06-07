@@ -337,7 +337,7 @@ public:
     check_cuda_error(cudaGetLastError());
 #endif
       // add bias decoding_params.trans_bias
-      decoder_->add_bias_act(trans_out_buf_, decoding_params.trans_bias, m, k, decoding_params.stream);
+      decoder_->add_bias_act(trans_out_buf_, decoding_params.trans_bias, m, k, decoding_params.stream, ActivationType::GELU);
 
 #ifndef NDEBUG
     cudaDeviceSynchronize();
