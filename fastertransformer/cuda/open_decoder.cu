@@ -1882,7 +1882,6 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
       T qk = blockReduceSum(val);
       if(threadIdx.x == 0)
         logits[ite] = qk;
-        printf("%d xxx\n", ite);
       __syncthreads(); //try to remove
     }
     __syncthreads(); //try to remove
