@@ -1853,8 +1853,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
   {
     extern __shared__ __align__(sizeof(T)) unsigned s_buf[];
     T* sq = reinterpret_cast<T *>(s_buf);
-    // T* logits = reinterpret_cast<T *>(&sq[size_per_head]);
-    T* logits = reinterpret_cast<T *>(&sq[step]);
+    T* logits = reinterpret_cast<T *>(&sq[size_per_head]);
   
     int tid = threadIdx.x;
     int bid = blockIdx.x / head_num;
@@ -1883,6 +1882,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
       T qk = blockReduceSum(val);
       if(threadIdx.x == 0)
         logits[ite] = qk;
+        printf("%d\n", ite + size_per_head);
       __syncthreads(); //try to remove
     }
     __syncthreads(); //try to remove
