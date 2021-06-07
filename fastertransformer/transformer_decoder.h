@@ -243,7 +243,7 @@ public:
             cudaDeviceSynchronize();
             check_cuda_error(cudaGetLastError());
 #endif
-            masked_multi_head_attention(
+            self_multi_head_attention(
                 norm_from_tensor_buf_,
                 memory_sequence_length,
                 key_cache_,
@@ -293,7 +293,7 @@ public:
         check_cuda_error(cudaGetLastError());
 #endif
     }
-    void masked_multi_head_attention(const DataType_ *from_tensor, const int* memory_sequence_length, DataType_ *key_cache_,
+    void self_multi_head_attention(const DataType_ *from_tensor, const int* memory_sequence_length, DataType_ *key_cache_,
                                      DataType_ *value_cache_, DataType_ *decoder_output, const int step, const int start_len);
 
     void cross_multi_head_attention(const DataType_ *from_tensor, const DataType_ *memory_tensor,

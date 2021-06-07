@@ -2013,7 +2013,7 @@ void masked_attention_dispatch(
 
 
   template<OperationType OpType_>
-  void OpenTransformerDecoder<OpType_>::masked_multi_head_attention(
+  void OpenTransformerDecoder<OpType_>::self_multi_head_attention(
     const DataType_* from_tensor,
     const int* memory_sequence_length,
     DataType_* key_cache_,
@@ -2046,10 +2046,10 @@ void masked_attention_dispatch(
     {
       key_buf_ = key_cache_ + (step - 1) * m * n;
       value_buf_ = value_cache_ + (step - 1) * m * n;
-#ifndef NDEBUG
+
       cudaDeviceSynchronize();
       check_cuda_error(cudaGetLastError());
-#endif
+
       check_cuda_error(cublasGemmEx(param_.cublas_handle, 
         CUBLAS_OP_N, CUBLAS_OP_N, 
         n, m, k, 
@@ -2060,11 +2060,11 @@ void masked_attention_dispatch(
         query_buf_, CType_, n, 
         computeType_, 
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
-#ifndef NDEBUG
+
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
-#endif
-      check_cuda_error(cublasGemmEx(param_.cublas_handle, 
+
+        check_cuda_error(cublasGemmEx(param_.cublas_handle, 
         CUBLAS_OP_N, CUBLAS_OP_N, 
         n, m, k, 
         &alpha, 
@@ -2074,11 +2074,11 @@ void masked_attention_dispatch(
         key_buf_, CType_, n, 
         computeType_, 
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
-#ifndef NDEBUG
+
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
-#endif
-      check_cuda_error(cublasGemmEx(param_.cublas_handle, 
+
+        check_cuda_error(cublasGemmEx(param_.cublas_handle, 
         CUBLAS_OP_N, CUBLAS_OP_N, 
         n, m, k, 
         &alpha, 
@@ -2089,10 +2089,10 @@ void masked_attention_dispatch(
         computeType_, 
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
     }
-#ifndef NDEBUG
+
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
-#endif
+
     masked_attention_dispatch<DataType_>(
       memory_sequence_length,
       key_buf_, value_buf_,
@@ -2101,10 +2101,10 @@ void masked_attention_dispatch(
       value_cache_, param_.self_attention.value_weight.bias,
       context_buf_, batch_size_,
       head_num_, size_per_head_, step, start_len, param_.stream); 
-#ifndef NDEBUG
+
       cudaDeviceSynchronize();
       check_cuda_error(cudaGetLastError());
-#endif
+
     std::cout << "n: " << n << std::endl;
     std::cout << "m: " << n << std::endl;
     std::cout << "k: " << n << std::endl;
@@ -2118,11 +2118,11 @@ void masked_attention_dispatch(
       decoder_output, CType_, n, 
       computeType_, 
       static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
-#ifndef NDEBUG
+
       cudaDeviceSynchronize();
       check_cuda_error(cudaGetLastError());
-#endif
-  }
+
+    }
   
 
   template<OperationType OpType_>
@@ -2247,7 +2247,7 @@ void masked_attention_dispatch(
    add_bias_input_kernel_generalize<<<grid, block, 0, param_.stream>>>(output, input, param_.ffn.output_weight.bias, m, n);
  }
  
- template void OpenTransformerDecoder<OperationType::FP32>::masked_multi_head_attention(
+ template void OpenTransformerDecoder<OperationType::FP32>::self_multi_head_attention(
    const float* from_tensor,
    const int* memory_sequence_length,
    float* key_cache,
@@ -2256,7 +2256,7 @@ void masked_attention_dispatch(
    const int step,
    const int start_len);
  
- template void OpenTransformerDecoder<OperationType::FP16>::masked_multi_head_attention(
+ template void OpenTransformerDecoder<OperationType::FP16>::self_multi_head_attention(
    const half* from_tensor,
    const int* memory_sequence_length,
    half* key_cache,
