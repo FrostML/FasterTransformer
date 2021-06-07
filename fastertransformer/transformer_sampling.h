@@ -322,20 +322,20 @@ public:
       DataType_ alpha = (DataType_)1.0f;
       DataType_ beta = (DataType_)0.0f;
       // trans here
-        cudaDeviceSynchronize();
-        check_cuda_error(cudaGetLastError());
       check_cuda_error(cublasGemmEx(decoding_params.cublas_handle,
                                     CUBLAS_OP_N, CUBLAS_OP_N,
-                                    n, m, k,
+                                    k, m, k,
                                     &alpha,
-                                    decoding_params.trans_kernel, AType_, n,
+                                    decoding_params.trans_kernel, AType_, k,
                                     from_tensor_[out_id], BType_, k,
                                     &beta,
-                                    trans_out_buf_, CType_, n,
+                                    trans_out_buf_, CType_, k,
                                     computeType_,
                                     static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
-        cudaDeviceSynchronize();
-        check_cuda_error(cudaGetLastError());
+
+    // int m = batch_size_;
+    // int n = hidden_units_;
+    // int k = hidden_units_;
 #ifndef NDEBUG
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
