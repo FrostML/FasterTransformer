@@ -422,6 +422,7 @@ public:
       check_cuda_error(cudaGetLastError());
 #endif
 
+      std::cout << step << std::endl;
       // TODO Find a better method to check the is_finished
       cudaMemcpy(h_finished_buf_, finished_buf_, sizeof(bool) * args_.batch_size_, cudaMemcpyDeviceToHost);
       int sum = 0;
