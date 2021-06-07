@@ -1885,6 +1885,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
       __syncthreads(); //try to remove
     }
     __syncthreads(); //try to remove
+    return;
   
     __shared__ float s_max_val, s_sum;
     float local_i = (tid >= (start_len - memory_sequence_length[bid])) && (tid < step) ? (float)logits[tid] : -1e20f; 
@@ -1925,7 +1926,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
   
 
 template <typename T>
-void masked_attention_dispatch(
+void masked_attention_dispatch_(
   const int* memory_sequence_length,
   T* key_buf, T* value_buf,
   T* query_buf, const T* self_Q_bias, 
@@ -2007,6 +2008,10 @@ void masked_attention_dispatch(
           value_cache, self_V_bias,
           context_buf, batch_size,
           head_num, size_per_head, step + start_len, start_len, scalar);
+        
+        cudaDeviceSynchronize();
+        check_cuda_error(cudaGetLastError());
+        exit(0);
     }
   }
 
@@ -2093,7 +2098,7 @@ void masked_attention_dispatch(
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
 
-    masked_attention_dispatch<DataType_>(
+    masked_attention_dispatch_<DataType_>(
       memory_sequence_length,
       key_buf_, value_buf_,
       query_buf_, param_.self_attention.query_weight.bias, 
