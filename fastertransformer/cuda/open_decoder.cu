@@ -1853,7 +1853,8 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
   {
     extern __shared__ __align__(sizeof(T)) unsigned s_buf[];
     T* sq = reinterpret_cast<T *>(s_buf);
-    T* logits = reinterpret_cast<T *>(&sq[size_per_head]);
+    // T* logits = reinterpret_cast<T *>(&sq[size_per_head]);
+    T* logits = reinterpret_cast<T *>(&sq[step]);
   
     int tid = threadIdx.x;
     int bid = blockIdx.x / head_num;
@@ -2004,7 +2005,6 @@ void masked_attention_dispatch_(
         std::cout << "(size_per_head + step): " << (size_per_head + step) << std::endl;
         std::cout << "(size_per_head): " << (size_per_head) << std::endl;
         std::cout << "(step): " << (step) << std::endl;
-        exit(0);
         self_attention_kernel<T><<<grid, block, shared_size, stream>>>(
           memory_sequence_length,
           key_buf, value_buf,
