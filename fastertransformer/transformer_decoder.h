@@ -296,10 +296,10 @@ public:
     void self_multi_head_attention(const DataType_ *from_tensor, const int* memory_sequence_length, DataType_ *key_cache_,
                                      DataType_ *value_cache_, DataType_ *decoder_output, const int step, const int start_len);
 
-    void cross_multi_head_attention(const DataType_ *from_tensor, const DataType_ *memory_tensor,
-                                    DataType_ *key_mem_cache_, DataType_ *value_mem_cache_,
-                                    DataType_ *decoder_output, const int *memory_sequence_length,
-                                    const int max_seq_len, const int step);
+    // void cross_multi_head_attention(const DataType_ *from_tensor, const DataType_ *memory_tensor,
+    //                                 DataType_ *key_mem_cache_, DataType_ *value_mem_cache_,
+    //                                 DataType_ *decoder_output, const int *memory_sequence_length,
+    //                                 const int max_seq_len, const int step);
 
     void ffn(const DataType_ *input, DataType_ *ffn_inner, DataType_ *output,
              const int m, const int inner_size, const int n, ActivationType activation_type);

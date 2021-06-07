@@ -333,9 +333,6 @@ public:
                                     computeType_,
                                     static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
 
-    // int m = batch_size_;
-    // int n = hidden_units_;
-    // int k = hidden_units_;
 #ifndef NDEBUG
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
