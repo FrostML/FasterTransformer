@@ -910,19 +910,16 @@
      cudaDeviceSynchronize();
      check_cuda_error(cudaGetLastError());
 #endif
-    std::cout << "n: " << n << std::endl;
-    std::cout << "m: " << n << std::endl;
-    std::cout << "k: " << n << std::endl;
-   check_cuda_error(cublasGemmEx(param_.cublas_handle, 
-     CUBLAS_OP_N, CUBLAS_OP_N, 
-     n, m, k, 
-     &alpha, 
-     param_.self_attention.attention_output_weight.kernel, AType_, n, 
-     context_buf_, BType_, k, 
-     &beta, 
-     decoder_output, CType_, n, 
-     computeType_, 
-     static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
+    check_cuda_error(cublasGemmEx(param_.cublas_handle, 
+      CUBLAS_OP_N, CUBLAS_OP_N, 
+      n, m, k, 
+      &alpha, 
+      param_.self_attention.attention_output_weight.kernel, AType_, n, 
+      context_buf_, BType_, k, 
+      &beta, 
+      decoder_output, CType_, n, 
+      computeType_, 
+      static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
  } 
  
  template <typename T, int size_per_head, int block_sz>
