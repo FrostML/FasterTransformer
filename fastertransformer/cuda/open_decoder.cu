@@ -1887,7 +1887,6 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
       __syncthreads(); //try to remove
     }
     __syncthreads(); //try to remove
-    return;
   
     __shared__ float s_max_val, s_sum;
     float local_i = (tid >= (start_len - memory_sequence_length[bid])) && (tid < step) ? (float)logits[tid] : -1e20f; 
@@ -2013,10 +2012,6 @@ void masked_attention_dispatch_(
           value_cache, self_V_bias,
           context_buf, batch_size,
           head_num, size_per_head, step + start_len, start_len, scalar);
-        
-        cudaDeviceSynchronize();
-        check_cuda_error(cudaGetLastError());
-        exit(0);
     }
   }
 
@@ -2057,9 +2052,6 @@ void masked_attention_dispatch_(
       key_buf_ = key_cache_ + (step - 1) * m * n;
       value_buf_ = value_cache_ + (step - 1) * m * n;
 
-      cudaDeviceSynchronize();
-      check_cuda_error(cudaGetLastError());
-
       check_cuda_error(cublasGemmEx(param_.cublas_handle, 
         CUBLAS_OP_N, CUBLAS_OP_N, 
         n, m, k, 
@@ -2071,9 +2063,6 @@ void masked_attention_dispatch_(
         computeType_, 
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
 
-        cudaDeviceSynchronize();
-        check_cuda_error(cudaGetLastError());
-
         check_cuda_error(cublasGemmEx(param_.cublas_handle, 
         CUBLAS_OP_N, CUBLAS_OP_N, 
         n, m, k, 
@@ -2084,9 +2073,6 @@ void masked_attention_dispatch_(
         key_buf_, CType_, n, 
         computeType_, 
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
-
-        cudaDeviceSynchronize();
-        check_cuda_error(cudaGetLastError());
 
         check_cuda_error(cublasGemmEx(param_.cublas_handle, 
         CUBLAS_OP_N, CUBLAS_OP_N, 
@@ -2100,9 +2086,6 @@ void masked_attention_dispatch_(
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
     }
 
-    cudaDeviceSynchronize();
-    check_cuda_error(cudaGetLastError());
-
     masked_attention_dispatch_<DataType_>(
       memory_sequence_length,
       key_buf_, value_buf_,
@@ -2112,12 +2095,9 @@ void masked_attention_dispatch_(
       context_buf_, batch_size_,
       head_num_, size_per_head_, step, start_len, param_.stream); 
 
-      cudaDeviceSynchronize();
-      check_cuda_error(cudaGetLastError());
+    cudaDeviceSynchronize();
+    check_cuda_error(cudaGetLastError());
 
-    std::cout << "n: " << n << std::endl;
-    std::cout << "m: " << n << std::endl;
-    std::cout << "k: " << n << std::endl;
     check_cuda_error(cublasGemmEx(param_.cublas_handle, 
       CUBLAS_OP_N, CUBLAS_OP_N, 
       n, m, k, 
@@ -2128,10 +2108,6 @@ void masked_attention_dispatch_(
       decoder_output, CType_, n, 
       computeType_, 
       static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
-
-      cudaDeviceSynchronize();
-      check_cuda_error(cudaGetLastError());
-
     }
   
 
