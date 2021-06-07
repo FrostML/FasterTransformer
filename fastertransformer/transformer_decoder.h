@@ -307,7 +307,7 @@ public:
     void add_bias_act(DataType_* input,
                       const DataType_* bias,
                       int m, int n, cudaStream_t stream,
-                      ActivationType activation_type=ActivationType::GELU);
+                      ActivationType activation_type);
 
     void decoder_norm1(const DataType_ *from_tensor, const DataType_ *gamma,
                        const DataType_ *beta, DataType_ *norm_from_tensor_buf_, const int m, const int n);
