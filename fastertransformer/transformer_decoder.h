@@ -304,7 +304,10 @@ public:
     void ffn(const DataType_ *input, DataType_ *ffn_inner, DataType_ *output,
              const int m, const int inner_size, const int n, ActivationType activation_type);
 
-    void add_bias_act(DataType_* input, const DataType_* bias, int m, int n);
+    void add_bias_act(DataType_* input,
+                      const DataType_* bias,
+                      int m, int n, cudaStream_t stream,
+                      ActivationType activation_type=ActivationType::GELU);
 
     void decoder_norm1(const DataType_ *from_tensor, const DataType_ *gamma,
                        const DataType_ *beta, DataType_ *norm_from_tensor_buf_, const int m, const int n);
