@@ -2340,13 +2340,13 @@ void masked_attention_dispatch_(
    half* norm_output,
    int m, int n);
  
- template void add_bias_act(
+ template void OpenTransformerDecoder<OperationType::FP32>::add_bias_act(
    float* input,
    const float* bias,
    int m, int n, cudaStream_t stream,
    ActivationType activation_type);
 
- template void add_bias_act(
+ template void OpenTransformerDecoder<OperationType::FP16>::add_bias_act(
    half* input,
    const half* bias,
    int m, int n, cudaStream_t stream,
