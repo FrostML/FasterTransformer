@@ -1865,7 +1865,6 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
     if(tid < size_per_head)
       sq[tid] = query_buf[qkv_id] + self_Q_bias[qkv_bias_id];
     __syncthreads();
-    return;
   
     //offset for each step
     int offset = batch_size * head_num * size_per_head;
@@ -1879,10 +1878,11 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
         key_cache[ite * offset + qkv_id] = key; 
       }
       
-      T val = (tid < size_per_head) ? key * sq[tid] * scalar : (T)(0.0f);
+      T val = (tid < size_per_head) ? key * sq[tid] * (T)(1.0f) : (T)(0.0f);
       T qk = blockReduceSum(val);
       if(threadIdx.x == 0)
-        logits[ite] = qk;
+        // logits[ite] = qk;
+        auto a = qk;
       __syncthreads(); //try to remove
     }
     __syncthreads(); //try to remove
