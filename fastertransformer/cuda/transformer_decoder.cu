@@ -894,7 +894,10 @@
        computeType_, 
        static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
    }
- 
+   #ifndef NDEBUG
+   cudaDeviceSynchronize();
+   check_cuda_error(cudaGetLastError());
+#endif
    masked_attention_dispatch<DataType_>(
      memory_sequence_length,
      key_buf_, value_buf_,
@@ -903,7 +906,10 @@
      value_cache_, param_.self_attention.value_weight.bias,
      context_buf_, batch_size_,
      head_num_, size_per_head_, step, start_len, param_.stream); 
- 
+     #ifndef NDEBUG
+     cudaDeviceSynchronize();
+     check_cuda_error(cudaGetLastError());
+#endif
    check_cuda_error(cublasGemmEx(param_.cublas_handle, 
      CUBLAS_OP_N, CUBLAS_OP_N, 
      n, m, k, 
