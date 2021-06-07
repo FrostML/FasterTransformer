@@ -1865,6 +1865,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
     if(tid < size_per_head)
       sq[tid] = query_buf[qkv_id] + self_Q_bias[qkv_bias_id];
     __syncthreads();
+    return;
   
     //offset for each step
     int offset = batch_size * head_num * size_per_head;
