@@ -2233,7 +2233,7 @@ void masked_attention_dispatch_(
                                                      int m, int n, cudaStream_t stream, ActivationType activation_type=ActivationType::GELU) {
  
    dim3 block_(min((int)(n / 4 / (4 / sizeof(DataType_))), 1024));
-   dim3 grid_(min(m * n / block.x, 65536)); 
+   dim3 grid_(min(m * n / block_.x, 65536)); 
    
    if(activation_type == ActivationType::RELU)
      add_bias_relu<DataType_><<<grid_, block_, 0, stream>>>(input, bias, m, n / (4 / sizeof(DataType_)));
