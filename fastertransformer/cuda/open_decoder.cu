@@ -1886,7 +1886,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
       __syncthreads(); //try to remove
     }
     __syncthreads(); //try to remove
-    return;
+    // return;
   
     __shared__ float s_max_val, s_sum;
     float local_i = (tid >= (start_len - memory_sequence_length[bid])) && (tid < step) ? (float)logits[tid] : -1e20f; 
@@ -1894,7 +1894,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
     if(tid == 0)
       s_max_val = max_val;
     __syncthreads();
-    return;
+    // return;
   
     local_i -= s_max_val;
     float local_o = (tid >= (start_len - memory_sequence_length[bid])) && (tid < step) ? __expf(local_i) : 0.0f;
@@ -1903,12 +1903,12 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
     if(tid == 0)
       s_sum = val + 1e-6;
     __syncthreads();
-    return;
+    // return;
   
     if((tid >= (start_len - memory_sequence_length[bid])) && (tid < step))
       logits[tid] = local_o / s_sum;
     __syncthreads();
-    return;
+    // return;
   
     if(tid < size_per_head)
     {
@@ -2014,7 +2014,7 @@ void masked_attention_dispatch_(
           key_cache, self_K_bias,
           value_cache, self_V_bias,
           context_buf, batch_size,
-          head_num, size_per_head, step + start_len, start_len, scalar);
+          head_num, size_per_head, step, start_len, scalar);
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
     }
