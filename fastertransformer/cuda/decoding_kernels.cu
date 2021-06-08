@@ -201,8 +201,8 @@ namespace fastertransformer
       int tgt_id = bid * beam_size * n_head * size_per_head + beam_id * n_head * size_per_head +
                   head_id * size_per_head + tid;
       if (ite < mem_len - memory_sequence_length[bid]) {
-        k_tgt[ite * offset + tgt_id] = static_cast<T>(0.0);
-        v_tgt[ite * offset + tgt_id] = static_cast<T>(0.0);
+        k_tgt[ite * offset + tgt_id] = static_cast<T>(-1e20f);
+        v_tgt[ite * offset + tgt_id] = static_cast<T>(-1e20f);
       } else {
         // right padding to left padding
         int src_ite = ite - mem_len + memory_sequence_length[bid];
