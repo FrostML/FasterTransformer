@@ -1901,9 +1901,10 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
       s_sum = val; // + 1e-6;
     __syncthreads();
   
-    if(tid >= (start_len - memory_sequence_length[bid]) && (tid < step))
+    if(tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) {
       logits[tid] = local_o / s_sum;
       xxx[bid * head_num * step + head_id * step + tid] = logits[tid];
+    }
     __syncthreads();
     return;
   
@@ -2003,6 +2004,8 @@ void masked_attention_dispatch_(
         std::cout << step << std::endl;
         cudaMalloc((void**)&xxx, sizeof(float) * batch_size * head_num * step);
         std::cout << "123" << std::endl;
+        cudaDeviceSynchronize();
+        check_cuda_error(cudaGetLastError());
 
         int shared_size = sizeof(T) * (size_per_head + step);
         self_attention_kernel<T><<<grid, block, shared_size, stream>>>(
