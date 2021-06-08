@@ -154,9 +154,9 @@ namespace fastertransformer
       {
         const int row_index = index / hidden_units; 
         const int col_index = index % hidden_units; 
-        from_tensor[index] = embedding_table[1 * hidden_units + col_index] // word_ids[row_index]
+        from_tensor[index] = embedding_table[word_ids[row_index] * hidden_units + col_index] // 
                              + position_encoding[col_index]
-                             + sent_table[1 * hidden_units + col_index];
+                             + sent_table[sent_ids * hidden_units + col_index];
       }
   }
 
