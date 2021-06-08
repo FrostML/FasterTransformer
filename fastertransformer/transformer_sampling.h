@@ -271,7 +271,7 @@ public:
     for (int step = 1; step <= args_.seq_len_; ++step) {
       embeddings_kernel_launcher(from_tensor_[0],
                                 decoding_params.embedding_table,
-                                decoding_params.position_encoding_table + (step - 1) * args_.hidden_units_,
+                                decoding_params.position_encoding_table + (step - 1 + args_.start_len_) * args_.hidden_units_,
                                 decoding_params.sent_table,
                                 word_ids_buf_,
                                 args_.sent_ids_,
@@ -282,22 +282,6 @@ public:
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
 #endif
-
-
-
-{
-  float* data = new float[m * k];
-  cudaMemcpy(data, from_tensor_[0], sizeof(float) * m * k, cudaMemcpyDeviceToHost);
-  float sum = 0.0f;
-  for (int i=0; i<m * k; ++i) {
-    sum += data[i];
-  }
-  std::cout << sum / m / k << std::endl;
-}
-exit(0);
-
-
-
 
       int from_id, out_id;
       for (int layer = 0; layer < args_.decoder_layers_; ++layer)
