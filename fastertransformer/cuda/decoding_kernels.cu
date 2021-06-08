@@ -154,9 +154,9 @@ namespace fastertransformer
       {
         const int row_index = index / hidden_units; 
         const int col_index = index % hidden_units; 
-        from_tensor[index] = embedding_table[word_ids[row_index] * hidden_units + col_index]
+        from_tensor[index] = embedding_table[1 * hidden_units + col_index] // word_ids[row_index]
                              + position_encoding[col_index]
-                             + sent_table[sent_ids * hidden_units + col_index];
+                             + sent_table[1 * hidden_units + col_index];
       }
   }
 
@@ -850,8 +850,7 @@ namespace fastertransformer
                                                   int step,
                                                   cudaStream_t stream);
 
-  template
-  void embeddings_kernel_launcher(float *from_tensor,
+  template void embeddings_kernel_launcher(float *from_tensor,
                                   const float *embedding_table,
                                   const float *position_encoding_table,
                                   const float *sent_table,
