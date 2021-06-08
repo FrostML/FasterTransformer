@@ -1849,7 +1849,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
     T* key_buf, T* value_buf,
     T* query_buf, const T* self_Q_bias, 
     T* key_cache, const T* self_K_bias, T* value_cache, const T* self_V_bias,
-    T* context_buf, int batch_size, int head_num, int size_per_head, const int step, const int start_len, const T scalar, float* xxx)
+    T* context_buf, int batch_size, int head_num, int size_per_head, const int step, const int start_len, const T scalar)
   {
     extern __shared__ __align__(sizeof(T)) unsigned s_buf[];
     T* sq = reinterpret_cast<T *>(s_buf);
@@ -1903,10 +1903,8 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
   
     if(tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) {
       logits[tid] = local_o / s_sum;
-      xxx[bid * head_num * step + head_id * step + tid] = logits[tid];
     }
     __syncthreads();
-    return;
   
     if(tid < size_per_head)
     {
@@ -1914,7 +1912,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
       for(int ite = 0; ite < step; ++ite)
       {
         T value = value_cache[ite * offset + qkv_id];
-        //for the last step, we should update K + bias_K to the cache
+        //for the last step, we should update V + bias_V to the cache
         if(ite == step - 1)
         {
           value = value_buf[qkv_id] + self_V_bias[qkv_bias_id];
@@ -2000,13 +1998,6 @@ void masked_attention_dispatch_(
         dim3 block(block_size);
         T scalar = 1 / sqrtf(size_per_head * 1.0f);
 
-        float *xxx;
-        std::cout << step << std::endl;
-        cudaMalloc((void**)&xxx, sizeof(float) * batch_size * head_num * step);
-        std::cout << "123" << std::endl;
-        cudaDeviceSynchronize();
-        check_cuda_error(cudaGetLastError());
-
         int shared_size = sizeof(T) * (size_per_head + step);
         self_attention_kernel<T><<<grid, block, shared_size, stream>>>(
           memory_sequence_length,
@@ -2015,14 +2006,14 @@ void masked_attention_dispatch_(
           key_cache, self_K_bias,
           value_cache, self_V_bias,
           context_buf, batch_size,
-          head_num, size_per_head, step, start_len, scalar, xxx);
+          head_num, size_per_head, step, start_len, scalar);
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
   
         {
-          int dims = batch_size * head_num * step;
+          int dims = batch_size * head_num * size_per_head;
           float* data = new float[dims];
-          cudaMemcpy(data, xxx, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+          cudaMemcpy(data, context_buf, sizeof(float) * dims, cudaMemcpyDeviceToHost);
           float sum = 0.0f;
           for (int i=0; i<dims; ++i) {
             sum += data[i];
