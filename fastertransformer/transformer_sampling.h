@@ -334,6 +334,18 @@ public:
 #endif
       }
 
+{
+  int dims = m * k;
+  float* data = new float[dims];
+  cudaMemcpy(data, from_tensor_[out_id], sizeof(float) * dims, cudaMemcpyDeviceToHost);
+  float sum = 0.0f;
+  for (int i=0; i<dims; ++i) {
+    sum += data[i];
+  }
+  std::cout << sum / (dims) << std::endl;
+}
+exit(0);
+
       DataType_ alpha = (DataType_)1.0f;
       DataType_ beta = (DataType_)0.0f;
       // trans here
@@ -382,16 +394,16 @@ public:
       check_cuda_error(cudaGetLastError());
 #endif
 
-{
-  int dims = m * k;
-  float* data = new float[dims];
-  cudaMemcpy(data, logits_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
-  float sum = 0.0f;
-  for (int i=0; i<dims; ++i) {
-    sum += data[i];
-  }
-  std::cout << sum / (dims) << std::endl;
-}
+// {
+//   int dims = m * k;
+//   float* data = new float[dims];
+//   cudaMemcpy(data, logits_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+//   float sum = 0.0f;
+//   for (int i=0; i<dims; ++i) {
+//     sum += data[i];
+//   }
+//   std::cout << sum / (dims) << std::endl;
+// }
 exit(0);
 
       if (args_.candidate_num_ != 0)
