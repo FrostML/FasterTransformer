@@ -2000,6 +2000,7 @@ void masked_attention_dispatch_(
         T scalar = 1 / sqrtf(size_per_head * 1.0f);
 
         float *xxx;
+        std::cout << step << std::endl;
         cudaMalloc((void**)&xxx, sizeof(float) * batch_size * head_num * step);
 
         int shared_size = sizeof(T) * (size_per_head + step);
