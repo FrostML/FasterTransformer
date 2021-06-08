@@ -2107,7 +2107,7 @@ void masked_attention_dispatch_(
     check_cuda_error(cudaGetLastError());
 
     {
-      int dims = m * k;
+      int dims = m * 12 * 267;
       float* data = new float[dims];
       cudaMemcpy(data, context_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
       float sum = 0.0f;
