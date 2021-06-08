@@ -237,6 +237,7 @@ public:
       word_ids: start_id_
     */
 
+    std::cout << args_.start_id_ << std::endl;
     if (args_.candidate_num_ != 0) {
       sampling_init_kernelLauncher(finished_buf_, decoding_params.sequence_length, word_ids_buf_, 
                                    args_.start_id_, args_.batch_size_, decoding_params.stream);
@@ -284,15 +285,15 @@ public:
 #endif
 
 
-// {
-//   float* data = new float[m * k];
-//   cudaMemcpy(data, from_tensor_[0], sizeof(float) * m * k, cudaMemcpyDeviceToHost);
-//   float sum = 0.0f;
-//   for (int i=0; i<m * k; ++i) {
-//     sum += data[i];
-//   }
-//   std::cout << sum / m / k << std::endl;
-// }
+{
+  float* data = new float[m * k];
+  cudaMemcpy(data, from_tensor_[0], sizeof(float) * m * k, cudaMemcpyDeviceToHost);
+  float sum = 0.0f;
+  for (int i=0; i<m * k; ++i) {
+    sum += data[i];
+  }
+  std::cout << sum / m / k << std::endl;
+}
 // exit(0);
 
       int from_id, out_id;
