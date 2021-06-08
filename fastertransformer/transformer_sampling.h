@@ -284,15 +284,16 @@ public:
         check_cuda_error(cudaGetLastError());
 #endif
 
-for (int layer=0; layer<args_.decoder_layers_; ++layer)
+for (int layer=0; layer < args_.decoder_layers_; ++layer)
 {
-  float* data = new float[m * args_.start_len_ * k];
-  cudaMemcpy(data, param[layer].k_cache, sizeof(float) * m * args_.start_len_ * k, cudaMemcpyDeviceToHost);
+  int dims = m * args_.start_len_ * k * args_.head_num_
+  float* data = new float[dims];
+  cudaMemcpy(data, param[layer].k_cache, sizeof(float) * dims, cudaMemcpyDeviceToHost);
   float sum = 0.0f;
-  for (int i=0; i<m * args_.start_len_ * k; ++i) {
+  for (int i=0; i<dims; ++i) {
     sum += data[i];
   }
-  std::cout << sum / m / k << std::endl;
+  std::cout << sum / (dims) << std::endl;
 }
 exit(0);
 
