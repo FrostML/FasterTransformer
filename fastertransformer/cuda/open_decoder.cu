@@ -1882,9 +1882,11 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
       T qk = blockReduceSum(val);
       if(threadIdx.x == 0)
         logits[ite] = qk;
+        context_buf_[bid * head_num * step + head_id * step + ite] = qk;
       __syncthreads(); //try to remove
     }
     __syncthreads(); //try to remove
+    return;
   
     __shared__ float s_max_val, s_sum;
     float local_i = (tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) ? (float)logits[tid] : -1e20f; 
@@ -2082,16 +2084,16 @@ void masked_attention_dispatch_(
         computeType_, 
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
     }
-    {
-      int dims = m * k;
-      float* data = new float[dims];
-      cudaMemcpy(data, query_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
-      float sum = 0.0f;
-      for (int i=0; i<dims; ++i) {
-        sum += data[i];
-      }
-      std::cout << sum / (dims) << std::endl;
-    }
+    // {
+    //   int dims = m * k;
+    //   float* data = new float[dims];
+    //   cudaMemcpy(data, query_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+    //   float sum = 0.0f;
+    //   for (int i=0; i<dims; ++i) {
+    //     sum += data[i];
+    //   }
+    //   std::cout << sum / (dims) << std::endl;
+    // }
     masked_attention_dispatch_<DataType_>(
       memory_sequence_length,
       key_buf_, value_buf_,
