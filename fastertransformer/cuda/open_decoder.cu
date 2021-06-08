@@ -2010,17 +2010,17 @@ void masked_attention_dispatch_(
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
   
-        {
-          int dims = batch_size * head_num * size_per_head;
-          float* data = new float[dims];
-          cudaMemcpy(data, context_buf, sizeof(float) * dims, cudaMemcpyDeviceToHost);
-          float sum = 0.0f;
-          for (int i=0; i<dims; ++i) {
-            sum += data[i];
-          }
-          std::cout << sum / (dims) << std::endl;
-        }
-        exit(0);
+        // {
+        //   int dims = batch_size * head_num * size_per_head;
+        //   float* data = new float[dims];
+        //   cudaMemcpy(data, context_buf, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+        //   float sum = 0.0f;
+        //   for (int i=0; i<dims; ++i) {
+        //     sum += data[i];
+        //   }
+        //   std::cout << sum / (dims) << std::endl;
+        // }
+        // exit(0);
     }
   }
 
@@ -2116,17 +2116,17 @@ void masked_attention_dispatch_(
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
 
-    {
-      int dims = m * 12 * 267;
-      float* data = new float[dims];
-      cudaMemcpy(data, context_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
-      float sum = 0.0f;
-      for (int i=0; i<dims; ++i) {
-        sum += data[i];
-      }
-      std::cout << sum / (dims) << std::endl;
-    }
-    exit(0);
+    // {
+    //   int dims = m * 12 * 267;
+    //   float* data = new float[dims];
+    //   cudaMemcpy(data, context_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+    //   float sum = 0.0f;
+    //   for (int i=0; i<dims; ++i) {
+    //     sum += data[i];
+    //   }
+    //   std::cout << sum / (dims) << std::endl;
+    // }
+    // exit(0);
 
     check_cuda_error(cublasGemmEx(param_.cublas_handle, 
       CUBLAS_OP_N, CUBLAS_OP_N, 
@@ -2138,6 +2138,17 @@ void masked_attention_dispatch_(
       decoder_output, CType_, n, 
       computeType_, 
       static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
+    {
+      int dims = m * k;
+      float* data = new float[dims];
+      cudaMemcpy(data, decoder_output, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+      float sum = 0.0f;
+      for (int i=0; i<dims; ++i) {
+        sum += data[i];
+      }
+      std::cout << sum / (dims) << std::endl;
+    }
+      // exit(0);
     }
   
 
