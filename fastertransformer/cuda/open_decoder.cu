@@ -1882,7 +1882,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
       T qk = blockReduceSum(val);
       if(threadIdx.x == 0)
         logits[ite] = qk;
-        context_buf_[bid * head_num * step + head_id * step + ite] = qk;
+        context_buf[bid * head_num * step + head_id * step + ite] = qk;
       __syncthreads(); //try to remove
     }
     __syncthreads(); //try to remove
