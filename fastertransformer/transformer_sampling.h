@@ -286,7 +286,7 @@ public:
 
 for (int layer=0; layer < args_.decoder_layers_; ++layer)
 {
-  int dims = m * args_.start_len_ * k * args_.head_num_
+  int dims = m * args_.start_len_ * k * args_.head_num_;
   float* data = new float[dims];
   cudaMemcpy(data, param[layer].k_cache, sizeof(float) * dims, cudaMemcpyDeviceToHost);
   float sum = 0.0f;
