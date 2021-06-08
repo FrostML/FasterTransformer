@@ -2000,7 +2000,7 @@ void masked_attention_dispatch_(
         T scalar = 1 / sqrtf(size_per_head * 1.0f);
 
         float *xxx = nullptr;
-        cudaMalloc(xxx, sizeof(float) * 1 * 12 * 267);
+        cudaMalloc((void**)&xxx, sizeof(float) * 1 * 12 * 267);
 
         int shared_size = sizeof(T) * (size_per_head + step);
         self_attention_kernel<T><<<grid, block, shared_size, stream>>>(
