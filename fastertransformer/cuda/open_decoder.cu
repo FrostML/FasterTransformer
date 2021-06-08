@@ -2082,7 +2082,16 @@ void masked_attention_dispatch_(
         computeType_, 
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
     }
-
+    {
+      int dims = m * k;
+      float* data = new float[dims];
+      cudaMemcpy(data, query_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+      float sum = 0.0f;
+      for (int i=0; i<dims; ++i) {
+        sum += data[i];
+      }
+      std::cout << sum / (dims) << std::endl;
+    }
     masked_attention_dispatch_<DataType_>(
       memory_sequence_length,
       key_buf_, value_buf_,
