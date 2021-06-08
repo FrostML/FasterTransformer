@@ -2000,7 +2000,7 @@ void masked_attention_dispatch_(
         T scalar = 1 / sqrtf(size_per_head * 1.0f);
 
         float *xxx = nullptr;
-        cudaMalloc((void**)&xxx, sizeof(float) * 1 * 12 * 267);
+        cudaMalloc((void**)&xxx, sizeof(float) * 1 * 12 * step);
 
         int shared_size = sizeof(T) * (size_per_head + step);
         self_attention_kernel<T><<<grid, block, shared_size, stream>>>(
@@ -2015,7 +2015,7 @@ void masked_attention_dispatch_(
         check_cuda_error(cudaGetLastError());
   
         {
-          int dims = 12 * 267;
+          int dims = 12 * step;
           float* data = new float[dims];
           cudaMemcpy(data, xxx, sizeof(float) * dims, cudaMemcpyDeviceToHost);
           float sum = 0.0f;
