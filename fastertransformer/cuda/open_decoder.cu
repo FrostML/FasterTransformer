@@ -1885,29 +1885,25 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
       __syncthreads(); //try to remove
     }
     __syncthreads(); //try to remove
-    // return;
   
     __shared__ float s_max_val, s_sum;
-    float local_i = (tid >= (start_len - memory_sequence_length[bid])) && (tid < step) ? (float)logits[tid] : -1e20f; 
+    float local_i = (tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) ? (float)logits[tid] : -1e20f; 
     float max_val = blockReduceMax<float>(local_i);
     if(tid == 0)
       s_max_val = max_val;
     __syncthreads();
-    // return;
   
     local_i -= s_max_val;
-    float local_o = (tid >= (start_len - memory_sequence_length[bid])) && (tid < step) ? __expf(local_i) : 0.0f;
+    float local_o = (tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) ? __expf(local_i) : 0.0f;
     float val = blockReduceSum<float>(local_o);
   
     if(tid == 0)
       s_sum = val + 1e-6;
     __syncthreads();
-    // return;
   
-    if((tid >= (start_len - memory_sequence_length[bid])) && (tid < step))
+    if(tid >= (start_len - memory_sequence_length[bid]) && (tid < step))
       logits[tid] = local_o / s_sum;
     __syncthreads();
-    // return;
   
     if(tid < size_per_head)
     {
@@ -2098,6 +2094,18 @@ void masked_attention_dispatch_(
 
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
+
+    {
+      int dims = m * k;
+      float* data = new float[dims];
+      cudaMemcpy(data, context_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+      float sum = 0.0f;
+      for (int i=0; i<dims; ++i) {
+        sum += data[i];
+      }
+      std::cout << sum / (dims) << std::endl;
+    }
+    exit(0);
 
     check_cuda_error(cublasGemmEx(param_.cublas_handle, 
       CUBLAS_OP_N, CUBLAS_OP_N, 
