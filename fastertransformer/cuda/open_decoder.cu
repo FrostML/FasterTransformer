@@ -1898,7 +1898,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
     float val = blockReduceSum<float>(local_o);
   
     if(tid == 0)
-      s_sum = val; // + 1e-6;
+      s_sum = val + 1e-6;
     __syncthreads();
   
     if(tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) {
@@ -2000,7 +2000,7 @@ void self_attention_dispatch(
         T scalar = 1 / sqrtf(size_per_head * 1.0f);
 
         float* xxx;
-        cudaMalloc((void**)&xxx, sizeof(float) * 12 * 267);
+        cudaMalloc((void**)&xxx, sizeof(float) * batch_size * head_num * step);
 
         int shared_size = sizeof(T) * (size_per_head + step);
         self_attention_kernel<T><<<grid, block, shared_size, stream>>>(
@@ -2016,7 +2016,7 @@ void self_attention_dispatch(
 
         {
           // int dims = batch_size * head_num * size_per_head;
-          int dims = batch_size * head_num * 267;
+          int dims = batch_size * head_num * step;
           float* data = new float[dims];
           cudaMemcpy(data, context_buf, sizeof(float) * dims, cudaMemcpyDeviceToHost);
           float sum = 0.0f;
