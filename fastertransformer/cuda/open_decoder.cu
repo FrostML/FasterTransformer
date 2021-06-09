@@ -2018,7 +2018,7 @@ void self_attention_dispatch(
           // int dims = batch_size * head_num * size_per_head;
           int dims = batch_size * head_num * step;
           float* data = new float[dims];
-          cudaMemcpy(data, context_buf, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+          cudaMemcpy(data, xxx, sizeof(float) * dims, cudaMemcpyDeviceToHost);
           float sum = 0.0f;
           for (int i=0; i<dims; ++i) {
             sum += data[i];
@@ -2100,17 +2100,17 @@ void self_attention_dispatch(
         computeType_, 
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
     }
-    {
-      int dims = m * k;
-      float* data = new float[dims];
-      cudaMemcpy(data, query_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
-      float sum = 0.0f;
-      for (int i=0; i<dims; ++i) {
-        sum += data[i];
-      }
-      std::cout << sum / (dims) << std::endl;
-    }
-    exit(0);
+    // {
+    //   int dims = m * k;
+    //   float* data = new float[dims];
+    //   cudaMemcpy(data, query_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+    //   float sum = 0.0f;
+    //   for (int i=0; i<dims; ++i) {
+    //     sum += data[i];
+    //   }
+    //   std::cout << sum / (dims) << std::endl;
+    // }
+    // exit(0);
     self_attention_dispatch<DataType_>(
       memory_sequence_length,
       key_buf_, value_buf_,
