@@ -1849,7 +1849,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
     T* key_buf, T* value_buf,
     T* query_buf, const T* self_Q_bias, 
     T* key_cache, const T* self_K_bias, T* value_cache, const T* self_V_bias,
-    T* context_buf, int batch_size, int head_num, int size_per_head, const int step, const int start_len, const T scalar, T* xxx)
+    T* context_buf, int batch_size, int head_num, int size_per_head, const int step, const int start_len, const T scalar, float* xxx)
   {
     extern __shared__ __align__(sizeof(T)) unsigned s_buf[];
     T* sq = reinterpret_cast<T *>(s_buf);
