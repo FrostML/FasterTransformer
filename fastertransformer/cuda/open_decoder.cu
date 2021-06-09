@@ -1898,7 +1898,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
     float val = blockReduceSum<float>(local_o);
   
     if(tid == 0)
-      s_sum = val + 1e-6;
+      s_sum = val; // + 1e-6;
     __syncthreads();
   
     if(tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) {
