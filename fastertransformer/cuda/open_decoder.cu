@@ -1880,8 +1880,10 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
       
       T val = (tid < size_per_head) ? key * sq[tid] * (T)(1.0f) : (T)(0.0f);
       T qk = blockReduceSum(val);
-      if(threadIdx.x == 0)
+      if(threadIdx.x == 0) {
         logits[ite] = qk;
+        xxx[bid * head_num * step + head_id * step + ite] = logits[ite];
+      }
       __syncthreads(); //try to remove
     }
     __syncthreads(); //try to remove
@@ -1903,7 +1905,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
   
     if(tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) {
       logits[tid] = local_o / s_sum;
-      xxx[bid * head_num * step + head_id * step + tid] = logits[tid];
+      // xxx[bid * head_num * step + head_id * step + tid] = logits[tid];
     }
     __syncthreads();
   
