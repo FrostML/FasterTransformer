@@ -2004,7 +2004,7 @@ void self_attention_dispatch(
         T scalar = 1 / sqrtf(size_per_head * 1.0f);
 
         float* xxx;
-        int dim = m * step * head_num;
+        int dim = batch_size * step * head_num;
         cudaMalloc((void**)&xxx, sizeof(float) * dim);
 
         int shared_size = sizeof(T) * (size_per_head + step);
