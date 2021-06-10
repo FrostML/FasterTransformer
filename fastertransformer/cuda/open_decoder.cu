@@ -2080,7 +2080,7 @@ void self_attention_dispatch(
         computeType_, 
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
 
-        check_cuda_error(cublasGemmEx(param_.cublas_handle, 
+      check_cuda_error(cublasGemmEx(param_.cublas_handle, 
         CUBLAS_OP_N, CUBLAS_OP_N, 
         n, m, k, 
         &alpha, 
@@ -2091,7 +2091,7 @@ void self_attention_dispatch(
         computeType_, 
         static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
 
-        check_cuda_error(cublasGemmEx(param_.cublas_handle, 
+      check_cuda_error(cublasGemmEx(param_.cublas_handle, 
         CUBLAS_OP_N, CUBLAS_OP_N, 
         n, m, k, 
         &alpha, 
@@ -2147,16 +2147,16 @@ void self_attention_dispatch(
       decoder_output, CType_, n, 
       computeType_, 
       static_cast<cublasGemmAlgo_t>(cublasAlgo_[0])));
-    {
-      int dims = m * k;
-      float* data = new float[dims];
-      cudaMemcpy(data, decoder_output, sizeof(float) * dims, cudaMemcpyDeviceToHost);
-      float sum = 0.0f;
-      for (int i=0; i<dims; ++i) {
-        sum += data[i];
-      }
-      std::cout << sum / (dims) << std::endl;
-    }
+    // {
+    //   int dims = m * k;
+    //   float* data = new float[dims];
+    //   cudaMemcpy(data, decoder_output, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+    //   float sum = 0.0f;
+    //   for (int i=0; i<dims; ++i) {
+    //     sum += data[i];
+    //   }
+    //   std::cout << sum / (dims) << std::endl;
+    // }
       // exit(0);
     }
   

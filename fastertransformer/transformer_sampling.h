@@ -258,10 +258,10 @@ public:
 #endif
     int cache_size = args_.batch_size_ * (args_.seq_len_ + args_.start_len_) * args_.hidden_units_; // type T
 
-    for (int sub_layer = 0; sub_layer < args_.decoder_layers_; ++sub_layer) {
-      init_cache_kernel_launcher(param[sub_layer].k_cache, param[sub_layer].v_cache, 
-                decoding_params.memory_sequence_length, K_cache_[0] + sub_layer * cache_size,
-                V_cache_[0] + sub_layer * cache_size, args_.head_num_, args_.size_per_head_,
+    for (int layer = 0; layer < args_.decoder_layers_; ++layer) {
+      init_cache_kernel_launcher(param[layer].k_cache, param[layer].v_cache, 
+                decoding_params.memory_sequence_length, K_cache_[0] + layer * cache_size,
+                V_cache_[0] + layer * cache_size, args_.head_num_, args_.size_per_head_,
                 args_.start_len_, args_.batch_size_, 1, decoding_params.stream);
     }
 #ifndef NDEBUG
@@ -272,10 +272,12 @@ public:
     for (int step = 1; step <= args_.seq_len_; ++step) {
       embeddings_kernel_launcher(from_tensor_[0],
                                 decoding_params.embedding_table,
-                                decoding_params.position_encoding_table + (step - 1 + args_.start_len_) * args_.hidden_units_,
+                                decoding_params.position_encoding_table,
                                 decoding_params.sent_table,
+                                decoding_params.memory_sequence_length,
                                 word_ids_buf_,
                                 args_.sent_ids_,
+                                step,
                                 args_.batch_size_,
                                 args_.hidden_units_,
                                 decoding_params.stream);
@@ -283,19 +285,6 @@ public:
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
 #endif
-
-// for (int layer=0; layer < args_.decoder_layers_; ++layer)
-// {
-//   int dims = m * args_.start_len_ * k;
-//   float* data = new float[dims];
-//   cudaMemcpy(data, param[layer].v_cache, sizeof(float) * dims, cudaMemcpyDeviceToHost);
-//   float sum = 0.0f;
-//   for (int i=0; i<dims; ++i) {
-//     sum += data[i];
-//   }
-//   std::cout << sum / (dims) << std::endl;
-// }
-// exit(0);
 
       int from_id, out_id;
       for (int layer = 0; layer < args_.decoder_layers_; ++layer)

@@ -141,8 +141,10 @@ namespace fastertransformer
                                      const T* embedding_table, 
                                      const T* position_encoding,
                                      const T* sent_table,
+                                     const int* memory_sequence_length,
                                      const int* word_ids,
                                      const int sent_ids,
+                                     const int step,
                                      const int batch_size,
                                      const int hidden_units)
   {
@@ -155,7 +157,7 @@ namespace fastertransformer
         const int row_index = index / hidden_units; 
         const int col_index = index % hidden_units; 
         from_tensor[index] = embedding_table[word_ids[row_index] * hidden_units + col_index] // 
-                             + position_encoding[col_index]
+                             + position_encoding[(step - 1 + memory_sequence_length[row_index]) * hidden_units + col_index]
                              + sent_table[sent_ids * hidden_units + col_index];
       }
   }
@@ -165,8 +167,10 @@ namespace fastertransformer
                                   const T *embedding_table,
                                   const T *position_encoding_table,
                                   const T *sent_table,
+                                  const int *memory_sequence_length,
                                   const int *word_ids,
                                   const int sent_ids,
+                                  const int step,
                                   const int batch_size,
                                   const int hidden_units,
                                   cudaStream_t stream) {
@@ -178,8 +182,10 @@ namespace fastertransformer
       embedding_table,
       position_encoding_table,
       sent_table,
+      memory_sequence_length,
       word_ids,
       sent_ids,
+      step,
       batch_size,
       hidden_units
     );
@@ -854,8 +860,10 @@ namespace fastertransformer
                                   const float *embedding_table,
                                   const float *position_encoding_table,
                                   const float *sent_table,
+                                  const int *memory_sequence_length,
                                   const int *word_ids,
                                   const int sent_ids,
+                                  const int step,
                                   const int batch_size,
                                   const int hidden_units,
                                   cudaStream_t stream);
@@ -864,8 +872,10 @@ namespace fastertransformer
                                   const half *embedding_table,
                                   const half *position_encoding_table,
                                   const half *sent_table,
+                                  const int *memory_sequence_length,
                                   const int *word_ids,
                                   const int sent_ids,
+                                  const int step,
                                   const int batch_size,
                                   const int hidden_units,
                                   cudaStream_t stream);
