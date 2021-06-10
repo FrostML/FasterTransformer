@@ -1996,8 +1996,9 @@ void self_attention_dispatch(
         else
           block_size = 1024;
         
-        if((int)block_size < size_per_head)
+        if((int)block_size < size_per_head) {
           block_size = size_per_head;
+        }
           
         assert(block_size <= 1024);
         dim3 block(block_size);
@@ -2021,14 +2022,15 @@ void self_attention_dispatch(
         check_cuda_error(cudaGetLastError());
 
     {
-      float* data = new float[dims];
-      cudaMemcpy(data, xxx, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+      int dim = batch_size * step * head_num * size_per_head;
+      float* data = new float[dim];
+      cudaMemcpy(data, key_cache, sizeof(float) * dim, cudaMemcpyDeviceToHost);
       float sum = 0.0f;
-      for (int i=0; i<dims; ++i) {
+      for (int i=0; i < dim; ++i) {
         sum += data[i];
         std::cout << data[i] << std::endl;
       }
-      std::cout << sum / (dims) << std::endl;
+      std::cout << sum / (dim) << std::endl;
     }
     exit(0);
     }
