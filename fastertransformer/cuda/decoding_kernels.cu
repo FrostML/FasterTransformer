@@ -152,6 +152,9 @@ namespace fastertransformer
       // 2. multiply hidden_dim**0.5
       // 3. add the position encoding
       // T scale = (T)sqrtf(float(hidden_units));
+      printf("memory_sequence_length: %d", memory_sequence_length[blockIdx.x]);
+      printf("sent_ids: %d", sent_ids);
+      printf("word_ids: %d", word_ids[row_index]);
       for(int index = blockIdx.x * blockDim.x + threadIdx.x; index < batch_size * hidden_units; index += blockDim.x * gridDim.x)
       {
         const int row_index = index / hidden_units; 
