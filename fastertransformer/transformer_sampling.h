@@ -398,7 +398,7 @@ public:
 #endif
 
 {
-  int dims = m * k;
+  int dims = m * n;
   float* data = new float[dims];
   cudaMemcpy(data, logits_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
   float sum = 0.0f;
