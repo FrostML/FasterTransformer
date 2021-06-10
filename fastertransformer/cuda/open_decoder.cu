@@ -1889,21 +1889,24 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
     __syncthreads(); //try to remove
   
     __shared__ float s_max_val, s_sum;
-    float local_i = (tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) ? (float)logits[tid] : -1e20f; 
+    // float local_i = (tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) ? (float)logits[tid] : -1e20f; 
+    float local_i = (tid < step) ? (float)logits[tid] : -1e20f; 
     float max_val = blockReduceMax<float>(local_i);
     if(tid == 0)
       s_max_val = max_val;
     __syncthreads();
   
     local_i -= s_max_val;
-    float local_o = (tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) ? __expf(local_i) : 0.0f;
+    // float local_o = (tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) ? __expf(local_i) : 0.0f;
+    float local_o = (tid < step) ? __expf(local_i) : 0.0f;
     float val = blockReduceSum<float>(local_o);
   
     if(tid == 0)
       s_sum = val; // + 1e-6;
     __syncthreads();
   
-    if(tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) {
+    // if(tid >= (start_len - memory_sequence_length[bid]) && (tid < step)) {
+    if(tid < step) {
       logits[tid] = local_o / s_sum;
       // xxx[bid * head_num * step + head_id * step + tid] = logits[tid];
     }
