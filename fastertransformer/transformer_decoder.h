@@ -261,7 +261,7 @@ public:
               }
               std::cout << sum << std::endl;
             }
-            exit();
+            exit(0);
 #ifndef NDEBUG
             cudaDeviceSynchronize();
             check_cuda_error(cudaGetLastError());
