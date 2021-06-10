@@ -206,20 +206,19 @@ namespace fastertransformer
     for (int ite = 0; ite < mem_len; ++ite) {
       int tgt_id = bid * beam_size * n_head * size_per_head + beam_id * n_head * size_per_head +
                   head_id * size_per_head + tid;
-      // if (ite < mem_len - memory_sequence_length[bid]) {
-      //   k_tgt[ite * offset + tgt_id] = static_cast<T>(0.0f);
-      //   v_tgt[ite * offset + tgt_id] = static_cast<T>(0.0f);
-      // } else {
+      if (ite < mem_len - memory_sequence_length[bid]) {
+        k_tgt[ite * offset + tgt_id] = static_cast<T>(0.0f);
+        v_tgt[ite * offset + tgt_id] = static_cast<T>(0.0f);
+      } else {
         // right padding to left padding
-        // int src_ite = ite - mem_len + memory_sequence_length[bid];
-        int src_ite = ite;
+        int tgt_ite = ite - mem_len + memory_sequence_length[bid];
         // int src_id = bid * mem_len * n_head * size_per_head + src_ite * n_head * size_per_head +
         //             head_id * size_per_head + tid;
         int src_id = bid * n_head * mem_len * size_per_head + head_id * mem_len * size_per_head +
-                    src_ite * size_per_head + tid;
-        k_tgt[ite * offset + tgt_id] = static_cast<T>(cache_k[src_id]);
-        v_tgt[ite * offset + tgt_id] = static_cast<T>(cache_v[src_id]);
-      // }
+                    ite * size_per_head + tid;
+        k_tgt[tgt_ite * offset + tgt_id] = static_cast<T>(cache_k[src_id]);
+        v_tgt[tgt_ite * offset + tgt_id] = static_cast<T>(cache_v[src_id]);
+      }
     }
   }
   
