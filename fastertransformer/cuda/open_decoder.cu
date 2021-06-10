@@ -2025,6 +2025,7 @@ void self_attention_dispatch(
       float sum = 0.0f;
       for (int i=0; i<dims; ++i) {
         sum += data[i];
+        std::cout << data[i] << std::endl;
       }
       std::cout << sum / (dims) << std::endl;
     }
