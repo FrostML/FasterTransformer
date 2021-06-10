@@ -269,6 +269,19 @@ public:
     check_cuda_error(cudaGetLastError());
 #endif
 
+{
+  int dims = m * k;
+  float* data = new float[dims];
+  cudaMemcpy(data, K_cache_[0], sizeof(float) * dims, cudaMemcpyDeviceToHost);
+  float sum = 0.0f;
+  for (int i=0; i<dims; ++i) {
+    sum += data[i];
+    std::cout << data[i] << std::endl;
+  }
+  std::cout << sum / (dims) << std::endl;
+}
+exit(0);
+
     for (int step = 1; step <= args_.seq_len_; ++step) {
       embeddings_kernel_launcher(from_tensor_[0],
                                 decoding_params.embedding_table,
