@@ -300,17 +300,17 @@ public:
         check_cuda_error(cudaGetLastError());
 #endif
 
-{
-  int dims = m * k;
-  float* data = new float[dims];
-  cudaMemcpy(data, from_tensor_[0], sizeof(float) * dims, cudaMemcpyDeviceToHost);
-  float sum = 0.0f;
-  for (int i=0; i<dims; ++i) {
-    sum += data[i];
-  }
-  std::cout << sum / (dims) << std::endl;
-}
-exit(0);
+// {
+//   int dims = m * k;
+//   float* data = new float[dims];
+//   cudaMemcpy(data, from_tensor_[0], sizeof(float) * dims, cudaMemcpyDeviceToHost);
+//   float sum = 0.0f;
+//   for (int i=0; i<dims; ++i) {
+//     sum += data[i];
+//   }
+//   std::cout << sum / (dims) << std::endl;
+// }
+// exit(0);
 
       int from_id, out_id;
       for (int layer = 0; layer < args_.decoder_layers_; ++layer)
@@ -332,16 +332,16 @@ exit(0);
         */
         decoder_->initialize(param[layer], decoder_buf_);
 
-{
-  int dims = m * k;
-  float* data = new float[dims];
-  cudaMemcpy(data, from_tensor_[from_id], sizeof(float) * dims, cudaMemcpyDeviceToHost);
-  float sum = 0.0f;
-  for (int i=0; i<dims; ++i) {
-    sum += data[i];
-  }
-  std::cout << sum / (dims) << std::endl;
-}
+// {
+//   int dims = m * k;
+//   float* data = new float[dims];
+//   cudaMemcpy(data, from_tensor_[from_id], sizeof(float) * dims, cudaMemcpyDeviceToHost);
+//   float sum = 0.0f;
+//   for (int i=0; i<dims; ++i) {
+//     sum += data[i];
+//   }
+//   std::cout << sum / (dims) << std::endl;
+// }
 
 #ifndef NDEBUG
         cudaDeviceSynchronize();
@@ -354,17 +354,17 @@ exit(0);
                           decoding_params.memory_sequence_length, from_tensor_[out_id], step, args_.start_len_,
                           false);
 
-{
-  int dims = m * k;
-  float* data = new float[dims];
-  cudaMemcpy(data, from_tensor_[out_id], sizeof(float) * dims, cudaMemcpyDeviceToHost);
-  float sum = 0.0f;
-  for (int i=0; i<dims; ++i) {
-    sum += data[i];
-  }
-  std::cout << sum / (dims) << std::endl;
-}
-exit(0);
+// {
+//   int dims = m * k;
+//   float* data = new float[dims];
+//   cudaMemcpy(data, from_tensor_[out_id], sizeof(float) * dims, cudaMemcpyDeviceToHost);
+//   float sum = 0.0f;
+//   for (int i=0; i<dims; ++i) {
+//     sum += data[i];
+//   }
+//   std::cout << sum / (dims) << std::endl;
+// }
+// exit(0);
 
 #ifndef NDEBUG
         cudaDeviceSynchronize();
@@ -432,17 +432,17 @@ exit(0);
       check_cuda_error(cudaGetLastError());
 #endif
 
-{
-  int dims = m * n;
-  float* data = new float[dims];
-  cudaMemcpy(data, logits_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
-  float sum = 0.0f;
-  for (int i=0; i<dims; ++i) {
-    sum += data[i];
-  }
-  std::cout << sum / (dims) << std::endl;
-}
-exit(0);
+// {
+//   int dims = m * n;
+//   float* data = new float[dims];
+//   cudaMemcpy(data, logits_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+//   float sum = 0.0f;
+//   for (int i=0; i<dims; ++i) {
+//     sum += data[i];
+//   }
+//   std::cout << sum / (dims) << std::endl;
+// }
+// exit(0);
 
       if (args_.candidate_num_ != 0)
       {
