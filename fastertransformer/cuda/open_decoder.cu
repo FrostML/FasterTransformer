@@ -2016,19 +2016,19 @@ void self_attention_dispatch(
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
 
-        {
-          // int dims = batch_size * head_num * size_per_head;
-          int dims = batch_size * head_num * step;
-          float* data = new float[dims];
-          cudaMemcpy(data, xxx, sizeof(float) * dims, cudaMemcpyDeviceToHost);
-          float sum = 0.0f;
-          for (int i=0; i<dims; ++i) {
-            sum += data[i];
-            std::cout << data[i] << std::endl;
-          }
-          std::cout << sum / (dims) << std::endl;
-        }
-        exit(0);
+        // {
+        //   // int dims = batch_size * head_num * size_per_head;
+        //   int dims = batch_size * head_num * step;
+        //   float* data = new float[dims];
+        //   cudaMemcpy(data, xxx, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+        //   float sum = 0.0f;
+        //   for (int i=0; i<dims; ++i) {
+        //     sum += data[i];
+        //     std::cout << data[i] << std::endl;
+        //   }
+        //   std::cout << sum / (dims) << std::endl;
+        // }
+        // exit(0);
     }
   }
 
