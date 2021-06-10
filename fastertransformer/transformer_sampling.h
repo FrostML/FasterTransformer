@@ -300,6 +300,18 @@ public:
         check_cuda_error(cudaGetLastError());
 #endif
 
+{
+  int dims = m * k;
+  float* data = new float[dims];
+  cudaMemcpy(data, from_tensor_[0], sizeof(float) * dims, cudaMemcpyDeviceToHost);
+  float sum = 0.0f;
+  for (int i=0; i<dims; ++i) {
+    sum += data[i];
+  }
+  std::cout << sum / (dims) << std::endl;
+}
+exit(0);
+
       int from_id, out_id;
       for (int layer = 0; layer < args_.decoder_layers_; ++layer)
       {
