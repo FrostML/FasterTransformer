@@ -2157,7 +2157,7 @@ void self_attention_dispatch(
     //   }
     //   std::cout << sum / (dims) << std::endl;
     // }
-      // exit(0);
+    // exit(0);
     }
   
 
