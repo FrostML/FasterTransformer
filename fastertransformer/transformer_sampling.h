@@ -272,8 +272,8 @@ public:
 {
   std::cout << "==========" <<std::endl;
   int dims = m * k * args_.start_len_;
-  DataType_* data = new DataType_[dims];
-  cudaMemcpy(data, K_cache_[0], sizeof(DataType_) * dims, cudaMemcpyDeviceToHost);
+  float* data = new float[dims];
+  cudaMemcpy(data, K_cache_[0], sizeof(float) * dims, cudaMemcpyDeviceToHost);
   float sum = 0.0f;
   for (int i=0; i<dims; ++i) {
     sum += data[i];
