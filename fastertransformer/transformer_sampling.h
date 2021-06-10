@@ -397,17 +397,17 @@ public:
       check_cuda_error(cudaGetLastError());
 #endif
 
-// {
-//   int dims = m * k;
-//   float* data = new float[dims];
-//   cudaMemcpy(data, logits_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
-//   float sum = 0.0f;
-//   for (int i=0; i<dims; ++i) {
-//     sum += data[i];
-//   }
-//   std::cout << sum / (dims) << std::endl;
-// }
-// exit(0);
+{
+  int dims = m * k;
+  float* data = new float[dims];
+  cudaMemcpy(data, logits_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+  float sum = 0.0f;
+  for (int i=0; i<dims; ++i) {
+    sum += data[i];
+  }
+  std::cout << sum / (dims) << std::endl;
+}
+exit(0);
 
       if (args_.candidate_num_ != 0)
       {
