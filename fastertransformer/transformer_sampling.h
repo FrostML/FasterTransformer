@@ -51,6 +51,7 @@ private:
   DataType_ *decoder_buf_;
   DataType_ *trans_out_buf_;
   DataType_ *decoder_normed_result_buf_;
+  DataType_ *lm_normed_result_buf_;
   DataType_ *logits_buf_;
   int *word_ids_buf_;
   bool *finished_buf_;
@@ -157,7 +158,7 @@ public:
                                         0);
 
     int datatype_buf_size = from_tensor_size * 2 + decoder_workspace_size +
-                            cache_size * 2 * args_.decoder_layers_ + decoder_normed_result_buffer_size * 2;
+                            cache_size * 2 * args_.decoder_layers_ + decoder_normed_result_buffer_size * 3;
 
     buf_ = reinterpret_cast<void *>(allocator_.malloc(
         sizeof(DataType_) * (datatype_buf_size + logits_buf_size) + 
@@ -177,7 +178,8 @@ public:
     decoder_buf_ = V_cache_[0] + cache_size * args_.decoder_layers_;
     trans_out_buf_ = (decoder_buf_ + decoder_workspace_size);
     decoder_normed_result_buf_ = (trans_out_buf_ + decoder_normed_result_buffer_size);
-    logits_buf_ = decoder_normed_result_buf_ + decoder_normed_result_buffer_size;
+    lm_normed_result_buf_ = (decoder_normed_result_buf_ + decoder_normed_result_buffer_size);
+    logits_buf_ = lm_normed_result_buf_ + decoder_normed_result_buffer_size;
     word_ids_buf_ = (int *)(logits_buf_ + logits_buf_size);
     finished_buf_ = (bool *)(word_ids_buf_ + word_ids_buf_size);
     finished_count_buf_ = (int *)(finished_buf_ + finished_buf_size);
@@ -372,18 +374,22 @@ public:
 #endif
       }
 
-{
-  int dims = m * k;
-  float* data = new float[dims];
-  cudaMemcpy(data, from_tensor_[out_id], sizeof(float) * dims, cudaMemcpyDeviceToHost);
-  // float sum = 0.0f;
-  for (int i=0; i<dims; ++i) {
-    // sum += data[i];
-    std::cout << i << ": " << data[i] << std::endl;
-  }
-  // std::cout << sum / (dims) << std::endl;
-}
-exit(0);
+      decoder_->decoder_norm1(from_tensor_[out_id], decoding_params.layernorm.gamma,
+                              decoding_params.layernorm.beta, decoder_normed_result_buf_, m, k);
+
+
+// {
+//   int dims = m * k;
+//   float* data = new float[dims];
+//   cudaMemcpy(data, from_tensor_[out_id], sizeof(float) * dims, cudaMemcpyDeviceToHost);
+//   // float sum = 0.0f;
+//   for (int i=0; i<dims; ++i) {
+//     // sum += data[i];
+//     std::cout << i << ": " << data[i] << std::endl;
+//   }
+//   // std::cout << sum / (dims) << std::endl;
+// }
+// exit(0);
 
       DataType_ alpha = (DataType_)1.0f;
       DataType_ beta = (DataType_)0.0f;
@@ -393,7 +399,7 @@ exit(0);
                                     k, m, k,
                                     &alpha,
                                     decoding_params.trans_kernel, AType_, k,
-                                    from_tensor_[out_id], BType_, k,
+                                    decoder_normed_result_buf_, BType_, k,
                                     &beta,
                                     trans_out_buf_, CType_, k,
                                     computeType_,
@@ -412,7 +418,7 @@ exit(0);
 #endif
 
       decoder_->decoder_norm1(trans_out_buf_, decoding_params.layernorm.gamma,
-                              decoding_params.layernorm.beta, decoder_normed_result_buf_, m, k);
+                              decoding_params.layernorm.beta, lm_normed_result_buf_, m, k);
 #ifndef NDEBUG
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
@@ -422,7 +428,7 @@ exit(0);
                                     n, m, k,
                                     &alpha,
                                     decoding_params.embedding_kernel, AType_, n,
-                                    decoder_normed_result_buf_, BType_, k,
+                                    lm_normed_result_buf_, BType_, k,
                                     &beta,
                                     logits_buf_, CType_, n,
                                     computeType_,

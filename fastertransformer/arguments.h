@@ -55,6 +55,7 @@ public:
   const T *sent_table = nullptr;
 
   LayerNormWeight<T> layernorm;
+  LayerNormWeight<T> lm_layernorm;
 
   int *output_ids = nullptr;
   int *parent_ids = nullptr;
