@@ -2021,18 +2021,18 @@ void self_attention_dispatch(
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
 
-    {
-      int dim = batch_size * step * head_num * size_per_head;
-      float* data = new float[dim];
-      cudaMemcpy(data, key_cache, sizeof(float) * dim, cudaMemcpyDeviceToHost);
-      float sum = 0.0f;
-      for (int i=0; i < dim; ++i) {
-        sum += data[i];
-        std::cout << data[i] << std::endl;
-      }
-      std::cout << sum / (dim) << std::endl;
-    }
-    exit(0);
+    // {
+    //   int dim = batch_size * step * head_num * size_per_head;
+    //   float* data = new float[dim];
+    //   cudaMemcpy(data, key_cache, sizeof(float) * dim, cudaMemcpyDeviceToHost);
+    //   float sum = 0.0f;
+    //   for (int i=0; i < dim; ++i) {
+    //     sum += data[i];
+    //     std::cout << data[i] << std::endl;
+    //   }
+    //   std::cout << sum / (dim) << std::endl;
+    // }
+    // exit(0);
     }
   }
 
