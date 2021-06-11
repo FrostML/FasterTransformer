@@ -1878,7 +1878,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
         key_cache[ite * offset + qkv_id] = key; 
       }
       
-      T val = (tid < size_per_head) ? key * sq[tid] * (T)(1.0f) : (T)(0.0f);
+      T val = (tid < size_per_head) ? key * sq[tid] * (T)(scalar) : (T)(0.0f);
       T qk = blockReduceSum(val);
       if(threadIdx.x == 0) {
         logits[ite] = qk;
