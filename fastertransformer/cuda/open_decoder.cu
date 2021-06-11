@@ -2022,9 +2022,9 @@ void self_attention_dispatch(
         check_cuda_error(cudaGetLastError());
 
     {
-      int dim = batch_size * step * head_num * size_per_head;
+      int dim = batch_size * step * head_num;
       float* data = new float[dim];
-      cudaMemcpy(data, key_cache, sizeof(float) * dim, cudaMemcpyDeviceToHost);
+      cudaMemcpy(data, xxx, sizeof(float) * dim, cudaMemcpyDeviceToHost);
       // float sum = 0.0f;
       for (int i=0; i < dim; ++i) {
         // sum += data[i];
