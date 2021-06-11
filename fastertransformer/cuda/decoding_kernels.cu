@@ -195,7 +195,7 @@ namespace fastertransformer
   __global__ void initial_cache_kernel(const float* cache_k, const float* cache_v, 
                                  const int* memory_sequence_length, T* k_tgt,
                                  T* v_tgt, int n_head, int size_per_head,
-                                 int mem_len, int batch_size, int beam_size) {
+                                 int mem_len, int batch_size, int beam_size=1) {
     int tid = threadIdx.x;
     int bid = blockIdx.x / (beam_size * n_head);
     int beam_id = blockIdx.x % (n_head * beam_size) / n_head;
@@ -203,23 +203,26 @@ namespace fastertransformer
     
     int offset = batch_size * beam_size * n_head * size_per_head;
     
+    int tgt_ite = 0;
     for (int ite = 0; ite < mem_len; ++ite) {
       int tgt_id = bid * beam_size * n_head * size_per_head + beam_id * n_head * size_per_head +
                   head_id * size_per_head + tid;
-      // if (ite < mem_len - memory_sequence_length[bid]) {
-      //   k_tgt[ite * offset + tgt_id] = static_cast<T>(0.0f);
-      //   v_tgt[ite * offset + tgt_id] = static_cast<T>(0.0f);
-      // } else {
+      if (ite < mem_len - memory_sequence_length[bid]) {
+        int src_ite = ite + memory_sequence_length[bid];
+        int src_id = bid * n_head * mem_len * size_per_head + head_id * mem_len * size_per_head +
+                    src_ite * size_per_head + tid;
+        k_tgt[tgt_ite * offset + tgt_id] = static_cast<T>(cache_k[src_id]);
+        v_tgt[tgt_ite * offset + tgt_id] = static_cast<T>(cache_v[src_id]);
+        tgt_ite++;
+      } else {
         // right padding to left padding
         // int tgt_ite = ite - mem_len + memory_sequence_length[bid];
-        int tgt_ite = ite;
-        // int src_id = bid * mem_len * n_head * size_per_head + src_ite * n_head * size_per_head +
-        //             head_id * size_per_head + tid;
         int src_id = bid * n_head * mem_len * size_per_head + head_id * mem_len * size_per_head +
                     ite * size_per_head + tid;
         k_tgt[tgt_ite * offset + tgt_id] = static_cast<T>(cache_k[src_id]);
         v_tgt[tgt_ite * offset + tgt_id] = static_cast<T>(cache_v[src_id]);
-      // }
+        tgt_ite++;
+      }
     }
   }
   
