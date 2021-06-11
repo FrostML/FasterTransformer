@@ -417,8 +417,8 @@ public:
     check_cuda_error(cudaGetLastError());
 #endif
 
-      decoder_->decoder_norm1(trans_out_buf_, decoding_params.layernorm.gamma,
-                              decoding_params.layernorm.beta, lm_normed_result_buf_, m, k);
+      decoder_->decoder_norm1(trans_out_buf_, decoding_params.lm_layernorm.gamma,
+                              decoding_params.lm_layernorm.beta, lm_normed_result_buf_, m, k);
 #ifndef NDEBUG
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
