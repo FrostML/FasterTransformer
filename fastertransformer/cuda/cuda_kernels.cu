@@ -421,7 +421,8 @@ __global__ void update_logits_kernel(T* logits, const T* bias, const int end_id,
 }
 
 template <typename T>
-__global__ void update_logits_kernel_without_softmax(T* logits, const T* bias, const int end_id, const bool* finished, const int n)
+__global__ void update_logits_kernel_without_softmax(T* logits, const T* bias, const int end_id, const bool* finished, const int n,
+                                                     const int start_id = -1, const int pad_id = -1, const int mask_id = -1)
 {
   int bid = blockIdx.x;
   bool finish = finished != nullptr ? finished[bid] : false;
@@ -431,7 +432,20 @@ __global__ void update_logits_kernel_without_softmax(T* logits, const T* bias, c
   const T MAX_T_VAL = (IS_FP16)? HALF_FLT_MAX : FLT_MAX;
   for(int tid = threadIdx.x; tid < n; tid += blockDim.x)
   {
-    if(finish)
+    // The default value is -1. Hence, if any id is -1, it cannot be equal to tid.
+    if (start_id == tid) {
+      logits[offset + tid] = -1e9;
+      continue;
+    }
+    else if (pad_id == tid) {
+      logits[offset + tid] = -1e9;
+      continue;
+    }
+    else if (mask_id == tid) {
+      logits[offset + tid] = -1e9;
+      continue;
+    }
+    else if (finish)
     {
       logits[offset + tid] = (tid == end_id) ? MAX_T_VAL : -MAX_T_VAL;
     }
@@ -607,12 +621,13 @@ void update_logits(float* logits, const float* bias, const int end_id, const boo
 
 template<typename T>
 void update_logits_without_softmax(T* logits, const T* bias, const int end_id, const bool* finished, 
-  const int m, const int n, cudaStream_t stream)
+  const int m, const int n, cudaStream_t stream,
+  const int start_id = -1, const int pad_id = -1, const int mask_id = -1)
 {
   dim3 grid(m);
   dim3 block(min(n, 1024));
   /*n is the vocab_size, e.g., 30000, 7000.... vocab_size is usually very big. */
-  update_logits_kernel_without_softmax<<<grid, block, 0, stream>>>(logits, bias, end_id, finished, n);
+  update_logits_kernel_without_softmax<<<grid, block, 0, stream>>>(logits, bias, end_id, finished, n, start_id, pad_id, mask_id);
 }
 
 template void update_logits_without_softmax(float* logits, const float* bias, const int end_id, const bool* finished, 

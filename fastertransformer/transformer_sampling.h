@@ -77,7 +77,9 @@ public:
                    const int sent_ids,
                    const int candidate_num = 0,
                    const float probability_threshold = 0.0,
-                   const bool normalization_before = true) : allocator_(allocator)
+                   const bool normalization_before = true,
+                   const int pad_id = 0,
+                   const int mask_id = 0) : allocator_(allocator)
   {
     args_.batch_size_ = batch_size;
     args_.seq_len_ = seq_len;
@@ -91,6 +93,8 @@ public:
     args_.probability_threshold_ = probability_threshold;
     args_.start_id_ = start_id;
     args_.end_id_ = end_id;
+    args_.pad_id_ = pad_id;
+    args_.mask_id_ = mask_id;
     // args_.temperature_ = temperature;
     args_.normalization_before_ = normalization_before;
     args_.sent_ids_ = sent_ids;
@@ -470,7 +474,10 @@ public:
                                       decoding_params.embedding_bias_T,
                                       args_.end_id_,
                                       finished_buf_,
-                                      m, n, decoding_params.stream);
+                                      m, n, decoding_params.stream,
+                                      args_.start_id_,
+                                      args_.pad_id_,
+                                      args_.mask_id_);
 
         topK_sampling_kernel_kernelLauncher(topk_workspace_,
                                             topk_workspace_size_,
