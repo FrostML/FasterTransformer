@@ -258,7 +258,7 @@ public:
               float sum = 0.0;
               for (int i=0; i<dim; ++i) {
                 sum += data[i];
-                std::cout << data[i] << std::endl;
+                std::cout << i << ": " << data[i] << std::endl;
               }
               std::cout << "AVG is: " << sum << std::endl;
             }
