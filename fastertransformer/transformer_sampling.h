@@ -374,23 +374,6 @@ public:
 #endif
       }
 
-{
-  int dims = m * k;
-  float* data = new float[dims];
-  cudaMemcpy(data, from_tensor_[out_id], sizeof(float) * dims, cudaMemcpyDeviceToHost);
-  // float sum = 0.0f;
-  for (int i=0; i<dims; ++i) {
-    // sum += data[i];
-    std::cout << i << ": " << data[i] << std::endl;
-  }
-  // std::cout << sum / (dims) << std::endl;
-}
-exit(0);
-
-      decoder_->decoder_norm1(from_tensor_[out_id], decoding_params.layernorm.gamma,
-                              decoding_params.layernorm.beta, decoder_normed_result_buf_, m, k);
-
-
 // {
 //   int dims = m * k;
 //   float* data = new float[dims];
@@ -403,6 +386,23 @@ exit(0);
 //   // std::cout << sum / (dims) << std::endl;
 // }
 // exit(0);
+
+      decoder_->decoder_norm1(from_tensor_[out_id], decoding_params.layernorm.gamma,
+                              decoding_params.layernorm.beta, decoder_normed_result_buf_, m, k);
+
+
+{
+  int dims = m * k;
+  float* data = new float[dims];
+  cudaMemcpy(data, decoder_normed_result_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
+  // float sum = 0.0f;
+  for (int i=0; i<dims; ++i) {
+    // sum += data[i];
+    std::cout << i << ": " << data[i] << std::endl;
+  }
+  // std::cout << sum / (dims) << std::endl;
+}
+exit(0);
 
       DataType_ alpha = (DataType_)1.0f;
       DataType_ beta = (DataType_)0.0f;
