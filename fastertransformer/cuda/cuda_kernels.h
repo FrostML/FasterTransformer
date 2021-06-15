@@ -200,8 +200,8 @@ void init_topp_id_val_kernel_kernelLauncher(int *topp_id_val_buf,
 template <typename T>
 void update_logits_without_softmax(T* logits, const T* bias, const int end_ids, 
                                    const bool* finished, const int m, const int n, 
-                                   cudaStream_t stream, const int start_id,
-                                   const int pad_id, const int mask_id);
+                                   cudaStream_t stream, const int start_id = -1,
+                                   const int pad_id = -1, const int mask_id = -1);
 
 template <typename T>
 void softmax_kernelLauncher(T* logits, const T* bias, const int end_ids,
