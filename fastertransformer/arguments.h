@@ -116,6 +116,8 @@ struct TransformerGenArguments : public DecodingSamplingArguments
   int *vocab_mask{nullptr};
   int sent_ids_{0};
   bool normalization_before_{true};
+  int pad_id_{-1};
+  int mask_id_{-1};
 };
 
 } // namespace fastertransformer
