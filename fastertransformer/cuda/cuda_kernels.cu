@@ -622,7 +622,7 @@ void update_logits(float* logits, const float* bias, const int end_id, const boo
 template<typename T>
 void update_logits_without_softmax(T* logits, const T* bias, const int end_id, const bool* finished, 
   const int m, const int n, cudaStream_t stream,
-  const int start_id, const int pad_id, const int mask_id)
+  const int start_id, const int unk_id, const int mask_id)
 {
   dim3 grid(m);
   dim3 block(min(n, 1024));
@@ -631,10 +631,10 @@ void update_logits_without_softmax(T* logits, const T* bias, const int end_id, c
 }
 
 template void update_logits_without_softmax(float* logits, const float* bias, const int end_id, const bool* finished, 
-  const int m, const int n, cudaStream_t stream, const int start_id = -1, const int pad_id = -1, const int mask_id = -1);
+  const int m, const int n, cudaStream_t stream, const int start_id = -1, const int unk_id = -1, const int mask_id = -1);
 
 template void update_logits_without_softmax(half* logits, const half* bias, const int end_id, const bool* finished, 
-  const int m, const int n, cudaStream_t stream, const int start_id = -1, const int pad_id = -1, const int mask_id = -1);
+  const int m, const int n, cudaStream_t stream, const int start_id = -1, const int unk_id = -1, const int mask_id = -1);
   
 template<typename T>
 void softmax_kernelLauncher(T* logits, const T* bias, const int end_id, const bool* finished,

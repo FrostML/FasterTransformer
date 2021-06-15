@@ -55,10 +55,10 @@ template <typename T>
 void embeddings_kernel_launcher(T *from_tensor,
                                 const T *embedding_table,
                                 const T *position_encoding_table,
-                                const T *sent_table,
+                                const T *type_table,
                                 const int *memory_sequence_length,
                                 const int *word_ids,
-                                const int sent_ids,
+                                const int type_id,
                                 const int step,
                                 const int batch_size,
                                 const int hidden_units,
@@ -201,7 +201,7 @@ template <typename T>
 void update_logits_without_softmax(T* logits, const T* bias, const int end_ids, 
                                    const bool* finished, const int m, const int n, 
                                    cudaStream_t stream, const int start_id = -1,
-                                   const int pad_id = -1, const int mask_id = -1);
+                                   const int unk_id = -1, const int mask_id = -1);
 
 template <typename T>
 void softmax_kernelLauncher(T* logits, const T* bias, const int end_ids,

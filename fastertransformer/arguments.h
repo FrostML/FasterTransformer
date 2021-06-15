@@ -52,7 +52,7 @@ public:
   const T *position_encoding_table = nullptr;
 
   // segment table
-  const T *sent_table = nullptr;
+  const T *type_table = nullptr;
 
   LayerNormWeight<T> layernorm;
   LayerNormWeight<T> lm_layernorm;

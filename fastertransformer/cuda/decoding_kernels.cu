@@ -140,10 +140,10 @@ namespace fastertransformer
   __global__ void embeddings_kernels(T* from_tensor,
                                      const T* embedding_table, 
                                      const T* position_encoding,
-                                     const T* sent_table,
+                                     const T* type_table,
                                      const int* memory_sequence_length,
                                      const int* word_ids,
-                                     const int sent_ids,
+                                     const int type_id,
                                      const int step,
                                      const int batch_size,
                                      const int hidden_units)
@@ -158,7 +158,7 @@ namespace fastertransformer
         const int col_index = index % hidden_units; 
         from_tensor[index] = embedding_table[word_ids[row_index] * hidden_units + col_index] // 
                              + position_encoding[(step - 1 + memory_sequence_length[row_index]) * hidden_units + col_index]
-                             + sent_table[sent_ids * hidden_units + col_index];
+                             + type_table[type_id * hidden_units + col_index];
       }
   }
 
@@ -166,10 +166,10 @@ namespace fastertransformer
   void embeddings_kernel_launcher(T *from_tensor,
                                   const T *embedding_table,
                                   const T *position_encoding_table,
-                                  const T *sent_table,
+                                  const T *type_table,
                                   const int *memory_sequence_length,
                                   const int *word_ids,
-                                  const int sent_ids,
+                                  const int type_ids,
                                   const int step,
                                   const int batch_size,
                                   const int hidden_units,
@@ -181,10 +181,10 @@ namespace fastertransformer
       from_tensor,
       embedding_table,
       position_encoding_table,
-      sent_table,
+      type_table,
       memory_sequence_length,
       word_ids,
-      sent_ids,
+      type_id,
       step,
       batch_size,
       hidden_units

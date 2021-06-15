@@ -74,7 +74,7 @@ public:
                    const int vocab_size, const int decoder_layers,
                    const int memory_hidden_units, const int memory_max_seq_len,
                    const int start_id, const int end_id,
-                   const int sent_ids,
+                   const int type_id,
                    const int candidate_num = 0,
                    const float probability_threshold = 0.0,
                    const bool normalization_before = true,
@@ -97,7 +97,7 @@ public:
     args_.mask_id_ = mask_id;
     // args_.temperature_ = temperature;
     args_.normalization_before_ = normalization_before;
-    args_.sent_ids_ = sent_ids;
+    args_.type_id_ = type_id;
 
     if (args_.candidate_num_ == 0 && args_.probability_threshold_ == 0.0)
     {
@@ -292,10 +292,10 @@ public:
       embeddings_kernel_launcher(from_tensor_[0],
                                 decoding_params.embedding_table,
                                 decoding_params.position_encoding_table,
-                                decoding_params.sent_table,
+                                decoding_params.type_table,
                                 decoding_params.memory_sequence_length,
                                 word_ids_buf_,
-                                args_.sent_ids_,
+                                args_.type_id_,
                                 step,
                                 args_.batch_size_,
                                 args_.hidden_units_,
@@ -476,7 +476,7 @@ public:
                                       finished_buf_,
                                       m, n, decoding_params.stream,
                                       args_.start_id_,
-                                      args_.pad_id_,
+                                      args_.unk_id_,
                                       args_.mask_id_);
 
         topK_sampling_kernel_kernelLauncher(topk_workspace_,
