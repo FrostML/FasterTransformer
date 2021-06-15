@@ -1849,7 +1849,7 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
     T* key_buf, T* value_buf,
     T* query_buf, const T* self_Q_bias, 
     T* key_cache, const T* self_K_bias, T* value_cache, const T* self_V_bias,
-    T* context_buf, int batch_size, int head_num, int size_per_head, const int step, const int start_len, const T scalar, float* xxx)
+    T* context_buf, int batch_size, int head_num, int size_per_head, const int step, const int start_len, const T scalar)
   {
     extern __shared__ __align__(sizeof(T)) unsigned s_buf[];
     T* sq = reinterpret_cast<T *>(s_buf);
@@ -1882,7 +1882,6 @@ template void OpenDecoder<OperationType::FP16>::add_bias_input(
       T qk = blockReduceSum(val);
       if(threadIdx.x == 0) {
         logits[ite] = qk;
-        xxx[bid * head_num * step + head_id * step + ite] = logits[ite];
       }
       __syncthreads(); //try to remove
     }
@@ -2004,11 +2003,6 @@ void self_attention_dispatch(
         dim3 block(block_size);
         T scalar = 1 / sqrtf(size_per_head * 1.0f);
 
-        float* xxx;
-        std::cout << step << std::endl;
-        int dims = batch_size * step * head_num;
-        cudaMalloc((void**)&xxx, sizeof(float) * dims);
-
         int shared_size = sizeof(T) * (size_per_head + step);
         self_attention_kernel<T><<<grid, block, shared_size, stream>>>(
           memory_sequence_length,
@@ -2017,22 +2011,9 @@ void self_attention_dispatch(
           key_cache, self_K_bias,
           value_cache, self_V_bias,
           context_buf, batch_size,
-          head_num, size_per_head, step, start_len, scalar, xxx);
+          head_num, size_per_head, step, start_len, scalar);
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
-
-    // {
-    //   int dim = batch_size * step * head_num;
-    //   float* data = new float[dim];
-    //   cudaMemcpy(data, xxx, sizeof(float) * dim, cudaMemcpyDeviceToHost);
-    //   // float sum = 0.0f;
-    //   for (int i=0; i < dim; ++i) {
-    //     // sum += data[i];
-    //     std::cout << i << ": " << data[i] << std::endl;
-    //   }
-    //   // std::cout << sum / (dim) << std::endl;
-    // }
-    // exit(0);
     }
   }
 

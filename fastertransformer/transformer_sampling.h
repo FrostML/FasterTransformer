@@ -239,7 +239,6 @@ public:
       word_ids: start_id_
     */
 
-    std::cout << args_.start_id_ << std::endl;
     if (args_.candidate_num_ != 0) {
       sampling_init_kernelLauncher(finished_buf_, decoding_params.sequence_length, word_ids_buf_, 
                                    args_.start_id_, args_.batch_size_, decoding_params.stream);
@@ -436,20 +435,6 @@ public:
     cudaDeviceSynchronize();
     check_cuda_error(cudaGetLastError());
 #endif
-      
-{
-  int dims = m * k;
-  float* data = new float[dims];
-  cudaMemcpy(data, lm_normed_result_buf_, sizeof(float) * dims, cudaMemcpyDeviceToHost);
-  // float sum = 0.0f;
-  for (int i=0; i<dims; ++i) {
-    // sum += data[i];
-    std::cout << i << ": " << data[i] << std::endl;
-  }
-  // std::cout << sum / (dims) << std::endl;
-}
-exit(0);
-      
       check_cuda_error(cublasGemmEx(decoding_params.cublas_handle,
                                     CUBLAS_OP_N, CUBLAS_OP_N,
                                     n, m, k,
