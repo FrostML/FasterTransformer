@@ -251,18 +251,6 @@ public:
                 masked_output_buf_,
                 step + start_len,
                 start_len);
-            {
-              int dim = m * n;
-              float* data = new float[m * n];
-              cudaMemcpy(data, masked_output_buf_, sizeof(float) * dim, cudaMemcpyDeviceToHost);
-              float sum = 0.0;
-              for (int i=0; i<dim; ++i) {
-                sum += data[i];
-                std::cout << i << ": " << data[i] << std::endl;
-              }
-              std::cout << "AVG is: " << sum << std::endl;
-            }
-            exit(0);
 #ifndef NDEBUG
             cudaDeviceSynchronize();
             check_cuda_error(cudaGetLastError());
@@ -289,6 +277,19 @@ public:
             check_cuda_error(cudaGetLastError());
 #endif
             add_bias_input(decoder_output, masked_output_buf_, m, n);
+
+            {
+              int dim = m * n;
+              float* data = new float[m * n];
+              cudaMemcpy(data, decoder_output, sizeof(float) * dim, cudaMemcpyDeviceToHost);
+              float sum = 0.0;
+              for (int i=0; i<dim; ++i) {
+                sum += data[i];
+                std::cout << i << ": " << data[i] << std::endl;
+              }
+              std::cout << "AVG is: " << sum << std::endl;
+            }
+            exit(0);
 
             if (!normalization_before_) {
                 masked_output_buf_ = masked_output_tmp_buf_;
