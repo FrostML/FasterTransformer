@@ -251,17 +251,18 @@ public:
                 masked_output_buf_,
                 step + start_len,
                 start_len);
-            // {
-            //   int dim = m * n;
-            //   float* data = new float[m * n];
-            //   cudaMemcpy(data, masked_output_buf_, sizeof(float) * dim, cudaMemcpyDeviceToHost);
-            //   float sum = 0.0;
-            //   for (int i=0; i<dim; ++i) {
-            //     sum += data[i];
-            //   }
-            //   std::cout << sum << std::endl;
-            // }
-            // exit(0);
+            {
+              int dim = m * n;
+              float* data = new float[m * n];
+              cudaMemcpy(data, masked_output_buf_, sizeof(float) * dim, cudaMemcpyDeviceToHost);
+              float sum = 0.0;
+              for (int i=0; i<dim; ++i) {
+                sum += data[i];
+                std::cout << data[i] << std::endl;
+              }
+              std::cout << "AVG is: " << sum << std::endl;
+            }
+            exit(0);
 #ifndef NDEBUG
             cudaDeviceSynchronize();
             check_cuda_error(cudaGetLastError());
