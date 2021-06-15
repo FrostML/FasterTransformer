@@ -631,10 +631,10 @@ void update_logits_without_softmax(T* logits, const T* bias, const int end_id, c
 }
 
 template void update_logits_without_softmax(float* logits, const float* bias, const int end_id, const bool* finished, 
-  const int m, const int n, cudaStream_t stream);
+  const int m, const int n, cudaStream_t stream, const int start_id, const int pad_id, const int mask_id);
 
 template void update_logits_without_softmax(half* logits, const half* bias, const int end_id, const bool* finished, 
-  const int m, const int n, cudaStream_t stream);
+  const int m, const int n, cudaStream_t stream, const int start_id, const int pad_id, const int mask_id);
   
 template<typename T>
 void softmax_kernelLauncher(T* logits, const T* bias, const int end_id, const bool* finished,
