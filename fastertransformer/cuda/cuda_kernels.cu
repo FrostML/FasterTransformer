@@ -622,7 +622,7 @@ void update_logits(float* logits, const float* bias, const int end_id, const boo
 template<typename T>
 void update_logits_without_softmax(T* logits, const T* bias, const int end_id, const bool* finished, 
   const int m, const int n, cudaStream_t stream,
-  const int start_id = -1, const int pad_id = -1, const int mask_id = -1)
+  const int start_id, const int pad_id, const int mask_id)
 {
   dim3 grid(m);
   dim3 block(min(n, 1024));
