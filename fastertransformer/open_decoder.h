@@ -595,10 +595,10 @@ public:
                                             param_.stream, cublasAlgoMap_,
                                             cublas_workspace_);
 
-        PUSH_RANGE("Transformer/slf_attn/all2all_reduce")
-        all2all_reduce_sum(decoder_output, decoder_output, m*n,
-                           t_parallel_param_, param_.stream);
-        POP_RANGE  
+        // PUSH_RANGE("Transformer/slf_attn/all2all_reduce")
+        // all2all_reduce_sum(decoder_output, decoder_output, m*n,
+        //                    t_parallel_param_, param_.stream);
+        // POP_RANGE  
     }
     
     /* attention with source sentence */
