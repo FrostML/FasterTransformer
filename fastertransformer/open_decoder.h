@@ -267,6 +267,10 @@ public:
             /* masked multi-head attention */
             /* layernorm(from_tensor) -> norm_from_tensor_buf_ */
 
+            std::cout << m << std::endl;
+            std::cout << hidden_units_ << std::endl;
+            exit(0);
+
             layer_norm(from_tensor,
                        param_.self_layernorm.gamma,
                        param_.self_layernorm.beta,
