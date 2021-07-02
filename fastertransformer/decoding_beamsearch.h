@@ -457,7 +457,6 @@ public:
         // broadcast_kernel_check(logits_buf_, cum_log_buf_, batch_size_, beam_width_, args_.vocab_size_padded_, decoding_params.stream);
 #endif
 
-        std::cout << "in else. " << std::endl;
         topK_kernelLauncher(topK_kernel_workspace,
                             topk_workspace_size_,
                             logits_buf_,
