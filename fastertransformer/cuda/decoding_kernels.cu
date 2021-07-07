@@ -340,10 +340,14 @@ namespace fastertransformer
     int step_id = blockIdx.x % step;
 
     int hidden_id = step_id * batch_size * beam_width * hidden_dim + 
-      0 * hidden_dim;
-// beam_ids[batch_id * beam_width + beam_id]
+      beam_ids[batch_id * beam_width + beam_id] * hidden_dim;
+
     int tgt_hidden_id = step_id * batch_size * beam_width * hidden_dim + 
       batch_id * beam_width * hidden_dim + beam_id * hidden_dim;
+
+    if (hidden_id != tgt_hidden_id) {
+      printf("%d vs %d", hidden_id, tgt_hidden_id);
+    }
 
     const T* key_src_ptr = key_src_cache + layer_id * cache_size;
     T* key_tgt_ptr = key_tgt_cache + layer_id * cache_size;
