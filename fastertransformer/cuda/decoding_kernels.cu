@@ -340,8 +340,8 @@ namespace fastertransformer
     int step_id = blockIdx.x % step;
 
     int hidden_id = step_id * batch_size * beam_width * hidden_dim + 
-      beam_ids[batch_id * beam_width + beam_id] * hidden_dim;
-
+      0 * hidden_dim;
+// beam_ids[batch_id * beam_width + beam_id]
     int tgt_hidden_id = step_id * batch_size * beam_width * hidden_dim + 
       batch_id * beam_width * hidden_dim + beam_id * hidden_dim;
 
@@ -387,13 +387,13 @@ namespace fastertransformer
     half2* key_tgt_ptr = (half2*)key_tgt_cache + layer_id * cache_size / 2;
     const half2* value_src_ptr = (const half2*)value_src_cache + layer_id * cache_size / 2;
     half2* value_tgt_ptr = (half2*)value_tgt_cache + layer_id * cache_size / 2;
-    
+
     for(int tid = threadIdx.x; tid < hidden_dim / 2; tid += blockDim.x)
     {
       key_tgt_ptr[tgt_hidden_id + tid] = key_src_ptr[hidden_id + tid];
       value_tgt_ptr[tgt_hidden_id + tid] = value_src_ptr[hidden_id + tid];
     }
-    
+
   }
 
   template <typename T>
