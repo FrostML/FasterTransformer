@@ -417,6 +417,7 @@ namespace fastertransformer
     block.x = block.x / (4 / sizeof(T));
 
     int src_id = step & 0x1;
+    std::cout << step << ": " << src_id << std::endl;
     int tgt_id = 1 - src_id;
 
     update_KV_cache_kernel<<<grid, block, 0, stream>>>(
