@@ -514,6 +514,8 @@ namespace fastertransformer
     int tid = threadIdx.x;
     sequence_length[tid] = finished[tid] ? sequence_length[tid] : sequence_length[tid] + 1;
 
+    __syncthreads();
+
     int beam_id = word_ids[tid] / vocab_size;
     int word_id = word_ids[tid] % vocab_size;
 
